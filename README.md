@@ -13,7 +13,7 @@ Small fixes for HELLDIVERS (2015), each one an option. It's a client mod, so it 
 
 ## How to Use
 
-Obsidian Quality of Life comes with [Obsidian](https://github.com/Alomare/ObsidianModManager), in the STARTER PACK folder, switched on. It updates from this repository.
+Obsidian Quality of Life comes with [Obsidian](https://github.com/Alomare/ObsidianModManager), in the Obsidian Kit folder, switched on. It updates from this repository.
 
 Select it in the Mods tab to change the options, and deploy to apply the mod.
 
