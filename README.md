@@ -8,8 +8,8 @@ Small fixes for HELLDIVERS (2015), each one an option. It's a client mod, so it 
 | Skip login screen | Straight to the ship, still online. Keyboard and mouse become player 1's controls. | Off |
 | Skip war briefs | No war recap when you log in after a long time. | Off |
 | Skip planet scanning | No planet discovery animation after a liberation or a new sector. | Off |
-| Widescreen fixes | No black bars on screens wider than 16:9. | On |
 | Expedite mission end | Faster gives each results screen about a second, and Instant goes straight to the last screen. Your rewards are saved either way. | Off |
+| Widescreen fixes | No black bars on screens wider than 16:9. | On |
 
 ## How to Use
 
