@@ -241,6 +241,50 @@ if get("solo_pause") then
 	end)
 end
 
+-- The game's own crosshair option shows the cursor dimmed between shots. This keeps the aiming
+-- cursor up instead. It answers the input code alone, so the option in the game's menu stays as the
+-- player set it.
+if get("aim_cursor") then
+	local inside = false
+	obsidian.hook("InputComponent", "update_masters", function(original, ...)
+		inside = true
+		local ok, err = pcall(original, ...)
+		inside = false
+		if not ok then error(err, 0) end
+	end)
+	obsidian.hook("SaveManager", "get", function(original, self, key, ...)
+		if inside and key == "crosshair_always_visible" then return true end
+		return original(self, key, ...)
+	end)
+	obsidian.hook("CursorManager", "set_cursor", function(original, self, name, ...)
+		if inside and name == "hud/cursors/game_inactive" then name = "hud/cursors/game" end
+		return original(self, name, ...)
+	end)
+end
+
+-- The game can already make a key toggle: a sticky binding, the Keybindings menu's own setting, and
+-- how a pad's map key starts. The input code gets a copy of its bindings with the map's set to that,
+-- so the player's saved keybindings and that menu stay as they are.
+if get("toggle_map") then
+	obsidian.hook("InputRebinder", "get_or_default", function(original, self, ...)
+		local bindings = original(self, ...)
+		if type(bindings) ~= "table" then return bindings end
+		local copy = {}
+		for i, binding in ipairs(bindings) do
+			copy[i] = binding
+			if binding.output_name == "map_pressed" and binding.key == "FilterSticky" and type(binding.input) == "table" then
+				local entry, input = {}, {}
+				for k, v in pairs(binding) do entry[k] = v end
+				for k, v in pairs(binding.input) do input[k] = v end
+				input.start_sticky = true
+				entry.input = input
+				copy[i] = entry
+			end
+		end
+		return copy
+	end)
+end
+
 -- Every game state limits the viewport to GameSettings.max_aspect_ratio (16:9), which letterboxes
 -- wider screens. A high limit lets the viewport fill the screen.
 if get("widescreen") then

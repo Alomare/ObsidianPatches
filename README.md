@@ -9,6 +9,9 @@ Small fixes for HELLDIVERS (2015), each one an option. It's a client mod, so it 
 | Skip war briefs | No war recap when you log in after a long time. | Off |
 | Skip planet scanning | No planet discovery animation after a liberation or a new sector. | Off |
 | Expedite mission end | Faster gives each results screen about a second, and Instant goes straight to the last screen. Your rewards are saved either way. | Off |
+| Dynamic solo pause | When you're alone in a mission, the pause menu freezes the game, even in a public or friends-only lobby. | On |
+| Aim cursor always visible | On PC, the cursor stays in its aiming look all the time. | Off |
+| Toggle minimap | The map key opens the minimap and keeps it open until you press it again. | Off |
 | Widescreen fixes | No black bars on screens wider than 16:9. | On |
 
 ## How to Use

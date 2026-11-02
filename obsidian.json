@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "name": { "en": "Obsidian Quality of Life", "pt-BR": "Obsidian Qualidade de Vida", "zh-CN": "Obsidian 便利改进", "fr": "Obsidian Confort", "es": "Obsidian Calidad de Vida" },
   "description": {
     "en": "Small fixes for the game, each one an option.",
@@ -35,15 +35,21 @@
       ],
       "label": { "en": "Expedite mission end", "pt-BR": "Agilizar o fim da missão", "zh-CN": "加快任务结算", "fr": "Accélérer la fin de mission", "es": "Agilizar el final de la misión" },
       "description": {
-        "en": "Faster gives each results screen about a second. Instant goes straight to the last screen. Either way your rewards are saved, and you are marked ready on the screens that wait for every player.",
-        "pt-BR": "Mais rápido deixa cada tela de resultados por cerca de um segundo. Instantâneo vai direto para a última tela. Nos dois casos as recompensas são salvas, e você fica pronto nas telas que esperam todos os jogadores.",
-        "zh-CN": "加快：每个结算画面约显示一秒。立即：直接跳到最后一个画面。两种方式都会保存奖励，并在需要所有玩家确认的画面上自动为你确认。",
-        "fr": "Plus rapide affiche chaque écran de résultats environ une seconde. Instantané passe directement au dernier écran. Dans les deux cas, vos récompenses sont enregistrées et vous êtes marqué prêt sur les écrans qui attendent tous les joueurs.",
-        "es": "Más rápido deja cada pantalla de resultados cerca de un segundo. Instantáneo va directo a la última pantalla. En ambos casos tus recompensas se guardan y quedas listo en las pantallas que esperan a todos los jugadores."
+        "en": "Faster gives each results screen about a second. Instant skips to the last one. Rewards are saved either way.",
+        "pt-BR": "Mais rápido deixa cada tela de resultados por cerca de um segundo. Instantâneo pula para a última. As recompensas são salvas nos dois casos.",
+        "zh-CN": "加快：每个结算画面约显示一秒。立即：跳到最后一个画面。两种方式都会保存奖励。",
+        "fr": "Plus rapide affiche chaque écran de résultats environ une seconde. Instantané passe au dernier. Les récompenses sont enregistrées dans les deux cas.",
+        "es": "Más rápido deja cada pantalla de resultados cerca de un segundo. Instantáneo salta a la última. Las recompensas se guardan en ambos casos."
       } },
     { "id": "solo_pause", "type": "toggle", "default": true,
       "label": { "en": "Dynamic solo pause", "pt-BR": "Pausa dinâmica solo", "zh-CN": "单人动态暂停", "fr": "Pause dynamique en solo", "es": "Pausa dinámica en solitario" },
       "description": { "en": "When you're alone in a mission, the pause menu freezes the game, even in a public or friends-only lobby. It goes on as soon as someone joins.", "pt-BR": "Quando você está sozinho numa missão, o menu de pausa congela o jogo, mesmo num lobby público ou só para amigos. O jogo continua assim que alguém entra.", "zh-CN": "当你独自在任务中时，暂停菜单会冻结游戏，即使大厅设为公开或仅限好友。一旦有人加入，游戏就会继续。", "fr": "Quand vous êtes seul dans une mission, le menu pause fige le jeu, même dans un lobby public ou réservé aux amis. Le jeu reprend dès que quelqu'un rejoint.", "es": "Cuando estás solo en una misión, el menú de pausa congela el juego, incluso en un lobby público o solo para amigos. El juego sigue en cuanto alguien se une." } },
+    { "id": "aim_cursor", "type": "toggle", "default": false,
+      "label": { "en": "Aim cursor always visible", "pt-BR": "Cursor de mira sempre visível", "zh-CN": "瞄准光标始终显示", "fr": "Curseur de visée toujours visible", "es": "Cursor de apuntado siempre visible" },
+      "description": { "en": "On PC, the cursor stays in its aiming look all the time, instead of dimming between shots.", "pt-BR": "No PC, o cursor fica sempre com a aparência de mira, em vez de esmaecer entre os tiros.", "zh-CN": "在 PC 上，光标始终保持瞄准样式，而不会在射击间隙变暗。", "fr": "Sur PC, le curseur garde toujours son aspect de visée au lieu de s'estomper entre les tirs.", "es": "En PC, el cursor mantiene siempre su aspecto de apuntado en vez de atenuarse entre disparos." } },
+    { "id": "toggle_map", "type": "toggle", "default": false,
+      "label": { "en": "Toggle minimap", "pt-BR": "Alternar minimapa", "zh-CN": "切换小地图", "fr": "Basculer la mini-carte", "es": "Alternar minimapa" },
+      "description": { "en": "The map key opens the minimap and keeps it open until you press it again, instead of only while held.", "pt-BR": "A tecla do mapa abre o minimapa e o mantém aberto até você apertá-la de novo, em vez de só enquanto está pressionada.", "zh-CN": "地图键按一下打开小地图，再按一下才关闭，而不是只在按住时显示。", "fr": "La touche de la carte ouvre la mini-carte et la garde ouverte jusqu'au prochain appui, au lieu de seulement pendant qu'elle est maintenue.", "es": "La tecla del mapa abre el minimapa y lo mantiene abierto hasta que la vuelves a pulsar, en vez de solo mientras la mantienes." } },
     { "id": "widescreen", "type": "toggle", "default": true,
       "label": { "en": "Widescreen fixes", "pt-BR": "Correções para tela larga", "zh-CN": "宽屏修正", "fr": "Corrections grand écran", "es": "Arreglos de pantalla ancha" },
       "description": { "en": "No black bars on screens wider than 16:9.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9.", "es": "Sin franjas negras en pantallas más anchas que 16:9." } }
