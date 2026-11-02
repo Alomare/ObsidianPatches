@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "name": { "en": "Obsidian Quality of Life", "pt-BR": "Obsidian Qualidade de Vida", "zh-CN": "Obsidian 便利改进", "fr": "Obsidian Confort", "es": "Obsidian Calidad de Vida" },
   "description": {
     "en": "Small fixes for the game, each one an option.",
@@ -41,6 +41,9 @@
         "fr": "Plus rapide affiche chaque écran de résultats environ une seconde. Instantané passe directement au dernier écran. Dans les deux cas, vos récompenses sont enregistrées et vous êtes marqué prêt sur les écrans qui attendent tous les joueurs.",
         "es": "Más rápido deja cada pantalla de resultados cerca de un segundo. Instantáneo va directo a la última pantalla. En ambos casos tus recompensas se guardan y quedas listo en las pantallas que esperan a todos los jugadores."
       } },
+    { "id": "solo_pause", "type": "toggle", "default": true,
+      "label": { "en": "Dynamic solo pause", "pt-BR": "Pausa dinâmica solo", "zh-CN": "单人动态暂停", "fr": "Pause dynamique en solo", "es": "Pausa dinámica en solitario" },
+      "description": { "en": "When you're alone in a mission, the pause menu freezes the game, even in a public or friends-only lobby. It goes on as soon as someone joins.", "pt-BR": "Quando você está sozinho numa missão, o menu de pausa congela o jogo, mesmo num lobby público ou só para amigos. O jogo continua assim que alguém entra.", "zh-CN": "当你独自在任务中时，暂停菜单会冻结游戏，即使大厅设为公开或仅限好友。一旦有人加入，游戏就会继续。", "fr": "Quand vous êtes seul dans une mission, le menu pause fige le jeu, même dans un lobby public ou réservé aux amis. Le jeu reprend dès que quelqu'un rejoint.", "es": "Cuando estás solo en una misión, el menú de pausa congela el juego, incluso en un lobby público o solo para amigos. El juego sigue en cuanto alguien se une." } },
     { "id": "widescreen", "type": "toggle", "default": true,
       "label": { "en": "Widescreen fixes", "pt-BR": "Correções para tela larga", "zh-CN": "宽屏修正", "fr": "Corrections grand écran", "es": "Arreglos de pantalla ancha" },
       "description": { "en": "No black bars on screens wider than 16:9.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9.", "es": "Sin franjas negras en pantallas más anchas que 16:9." } }

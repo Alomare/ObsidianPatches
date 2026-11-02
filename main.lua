@@ -85,6 +85,10 @@ end
 
 -- The war brief after a long absence is the campaign recap, opened by show_recap when the ship
 -- loads. The war-end sequence (state_season_end) writes the save and is left alone.
+-- The galaxy map also plays a shorter brief each time it opens after the war has moved: what changed
+-- since the last brief, or the snapshots since the last login. The recap screen still runs its own
+-- entry, which records the war as seen, and then leaves at once. A recap the player asks for, and the
+-- war's end, which goes on to the season end and its save, are left to play.
 if get("skip_war_briefs") then
 	obsidian.hook("StateMenu", "on_enter", function(original, self, params, ...)
 		if type(params) == "table" and params.show_recap then
@@ -92,6 +96,42 @@ if get("skip_war_briefs") then
 			obsidian.log("skip war briefs: recap skipped")
 		end
 		return original(self, params, ...)
+	end)
+
+	local asked, waiting = false, nil
+	local function keeps(self)
+		local p = type(self.params) == "table" and self.params or {}
+		return self.season_end_params ~= nil or p.season_end or p.debug_recap
+	end
+	obsidian.hook("MenuScreenCampaign", "go_to_recap", function(original, self, ...)
+		asked = true
+		return original(self, ...)
+	end)
+	obsidian.hook("MenuScreenCampaignRecap", "on_enter", function(original, self, ...)
+		local by_player = asked
+		asked, waiting = false, nil
+		local r = { original(self, ...) }
+		if not by_player and not keeps(self) and not self.wants_exit then
+			if #(self.snapshots or {}) > 0 then
+				self.wants_exit = true
+				obsidian.log("skip war briefs: brief skipped")
+			else
+				-- The snapshots come from the backend: whether there's a war end to show is known then.
+				waiting = self
+			end
+		end
+		return unpack(r)
+	end)
+	obsidian.hook("MenuScreenCampaignRecap", "recieve_snapshots", function(original, self, ...)
+		local r = { original(self, ...) }
+		if waiting == self then
+			waiting = nil
+			if not keeps(self) and not self.wants_exit then
+				self.wants_exit = true
+				obsidian.log("skip war briefs: brief skipped after the snapshots")
+			end
+		end
+		return unpack(r)
 	end)
 end
 
@@ -103,6 +143,101 @@ if get("skip_planet_scanning") then
 			if type(step) == "table" and type(step.time) == "number" then step.time = 0.01 end
 		end
 		obsidian.log("skip planet scanning: steps shortened")
+	end)
+end
+
+-- Dynamic solo pause. The game never stops a mission for its pause menu, whoever is in the lobby.
+-- Alone, the menu freezes it: the scripts' clock stops (_G.PAUSED, as the game's own debug pause has
+-- it), and the enemy and movement components wait, as the game's tutorial pauses them. A waiting
+-- component keeps the commands sent to it, and the game takes back some of their data at the end of
+-- the frame (TempTableFactory), so those get their own copy. Someone joining unfreezes it at once.
+-- Only what this paused is resumed: a freeze another mod made, such as Obsidian API's, stays.
+if get("solo_pause") then
+	local COMPONENTS = { "navmesh_mover", "enemy" }
+	local WAITING = { navmesh_mover = true, enemy = true }
+	local frozen, menu_open, ours, real_queue, copying = false, false, {}, nil, nil
+
+	local function alone()
+		local network = rawget(_G, "NetworkGlobal")
+		local lobby = type(network) == "table" and network.lobby or nil
+		if not (lobby and lobby.lobby) then return true end
+		local ok, members = pcall(lobby.members, lobby)
+		return ok and type(members) == "table" and #members <= 1
+	end
+
+	local function state()
+		local boot = rawget(_G, "Boot")
+		local sm = type(boot) == "table" and boot.state_machine
+		if not sm then return nil end
+		return sm:get_current_state(), sm:get_current_state_name()
+	end
+
+	local function in_mission()
+		local _, name = state()
+		return name == "game"
+	end
+
+	local function copy_commands(on)
+		local aux = rawget(_G, "EntityAux")
+		if type(aux) ~= "table" then return end
+		if on and not copying then
+			real_queue = aux.queue_command_master
+			copying = function(unit, component, command, data, ...)
+				if frozen and WAITING[component] and type(data) == "table" then
+					local own = {}
+					for k, v in pairs(data) do own[k] = v end
+					data = own
+				end
+				return real_queue(unit, component, command, data, ...)
+			end
+			aux.queue_command_master = copying
+		elseif not on and copying and aux.queue_command_master == copying then
+			aux.queue_command_master = real_queue
+			copying, real_queue = nil, nil
+		end
+	end
+
+	local function freeze(on)
+		if on == frozen then return end
+		local st = state()
+		local cm = type(st) == "table" and st.component_manager
+		frozen = on
+		rawset(_G, "PAUSED", on)
+		copy_commands(on)
+		if cm then
+			for _, name in ipairs(COMPONENTS) do
+				local index, running = cm.component_name_to_index[name], false
+				for _, i in ipairs(cm.active_components) do
+					if i == index then running = true end
+				end
+				if on and running then
+					cm:pause_component(name)
+					ours[name] = true
+				elseif not on and ours[name] and not running then
+					cm:resume_component(name)
+				end
+			end
+		end
+		if not on then ours = {} end
+		obsidian.log("solo pause: " .. (on and "frozen" or "running again"))
+	end
+
+	obsidian.hook("MenuScreenMain", "set_active_pause", function(original, self, on, ...)
+		local r = { original(self, on, ...) }
+		menu_open = on == true
+		local ok, err = pcall(freeze, menu_open and in_mission() and alone())
+		if not ok then obsidian.log("solo pause: stopped after an error:", err) end
+		return unpack(r)
+	end)
+
+	obsidian.on_frame(function()
+		if not frozen then return end
+		local joined = not alone()
+		if joined or not menu_open or not in_mission() then
+			if joined then obsidian.log("solo pause: someone joined") end
+			local ok, err = pcall(freeze, false)
+			if not ok then obsidian.log("solo pause: could not unfreeze:", err) end
+		end
 	end)
 end
 
