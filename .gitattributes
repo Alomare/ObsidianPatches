@@ -5,3 +5,5 @@
 .gitattributes export-ignore
 README.md export-ignore
 .gitignore export-ignore
+CHANGELOG.md export-ignore
+CLAUDE.md export-ignore
