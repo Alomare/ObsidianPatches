@@ -1,7 +1,7 @@
--- Obsidian Quality of Life: small fixes for the game, each one a setting on the pause menu's Mods page
--- (Obsidian API 1.11 and newer). Skip intro and Skip login act before that menu can be reached, so they
--- read the kept value at launch; every other setting takes effect at once, its hooks always installed
--- and checking it each time. Without the API, each keeps its default.
+-- Obsidian Quality of Life: small fixes for the game, each one an option in Obsidian. Four of them are
+-- also on the pause menu's Mods page (Obsidian API 1.16 and newer), bound to the same options: a change
+-- there applies at once and reaches Obsidian's mod details. The other five are read at launch. Every
+-- hook is always installed and checks its option each time, so a change from the page needs no restart.
 local has_api, api = pcall(function() return obsidian.import("obsidian.api") end)
 if not has_api then api = nil end
 
@@ -9,36 +9,57 @@ local on = {
 	skip_intro = false, skip_login = false, skip_war_briefs = false, skip_planet_scanning = false,
 	expedite_mission_end = "off", solo_pause = true, aim_cursor = false, toggle_map = false, widescreen = true,
 }
--- A value Obsidian still holds from when these were options in the app starts each one off.
 for id in pairs(on) do
 	local ok, v = pcall(obsidian.settings.get, id)
 	if ok and v ~= nil then on[id] = v end
 end
 local changed = {}
 
-if api and api.mod_settings then
+-- The pause menu rows, by language, as the options read in obsidian.json.
+local PAGE = {
+	{ id = "expedite_mission_end",
+		label = { en = "Expedite mission end", fr = "AccÃ©lÃ©rer la fin de mission", es = "Agilizar el final de la misiÃ³n", ["pt-BR"] = "Agilizar o fim da missÃ£o" },
+		info = { en = "Faster gives each results screen about a second. Instant skips to the last one. Rewards are saved either way.",
+			fr = "Plus rapide affiche chaque Ã©cran de rÃ©sultats environ une seconde. InstantanÃ© passe au dernier. Les rÃ©compenses sont enregistrÃ©es dans les deux cas.",
+			es = "MÃ¡s rÃ¡pido deja cada pantalla de resultados cerca de un segundo. InstantÃ¡neo salta a la Ãºltima. Las recompensas se guardan en ambos casos.",
+			["pt-BR"] = "Mais rÃ¡pido deixa cada tela de resultados por cerca de um segundo. InstantÃ¢neo pula para a Ãºltima. As recompensas sÃ£o salvas nos dois casos." },
+		choices = {
+			{ id = "off", label = { en = "Off", fr = "DÃ©sactivÃ©", es = "Desactivado", ["pt-BR"] = "Desligado" } },
+			{ id = "faster", label = { en = "Faster", fr = "Plus rapide", es = "MÃ¡s rÃ¡pido", ["pt-BR"] = "Mais rÃ¡pido" } },
+			{ id = "instant", label = { en = "Instant", fr = "InstantanÃ©", es = "InstantÃ¡neo", ["pt-BR"] = "InstantÃ¢neo" } },
+		} },
+	{ id = "solo_pause",
+		label = { en = "Dynamic solo pause", fr = "Pause dynamique en solo", es = "Pausa dinÃ¡mica en solitario", ["pt-BR"] = "Pausa dinÃ¢mica solo" },
+		info = { en = "With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. The game resumes as soon as someone joins.",
+			fr = "Avec un seul joueur dans la mission, le menu pause fige le jeu, mÃªme dans un lobby public ou rÃ©servÃ© aux amis. Le jeu reprend dÃ¨s que quelqu'un rejoint.",
+			es = "Con un solo jugador en la misiÃ³n, el menÃº de pausa congela el juego, incluso en un lobby pÃºblico o solo para amigos. El juego sigue en cuanto alguien se une.",
+			["pt-BR"] = "Com um Ãºnico jogador na missÃ£o, o menu de pausa congela o jogo, mesmo num lobby pÃºblico ou sÃ³ para amigos. O jogo continua assim que alguÃ©m entra." } },
+	{ id = "aim_cursor",
+		label = { en = "Aim cursor always visible", fr = "Curseur de visÃ©e toujours visible", es = "Cursor de apuntado siempre visible", ["pt-BR"] = "Cursor de mira sempre visÃ­vel" },
+		info = { en = "On PC, the cursor keeps the aiming look at all times, instead of dimming between shots.",
+			fr = "Sur PC, le curseur garde toujours l'aspect de visÃ©e au lieu de s'estomper entre les tirs.",
+			es = "En PC, el cursor mantiene siempre el aspecto de apuntado en vez de atenuarse entre disparos.",
+			["pt-BR"] = "No PC, o cursor fica sempre com a aparÃªncia de mira, em vez de esmaecer entre os tiros." } },
+	{ id = "toggle_map",
+		label = { en = "Toggle minimap", fr = "Basculer la mini-carte", es = "Alternar minimapa", ["pt-BR"] = "Alternar minimapa" },
+		info = { en = "The map key opens the minimap and keeps it open until pressed again, instead of only while held.",
+			fr = "La touche de la carte ouvre la mini-carte et la garde ouverte jusqu'au prochain appui, au lieu de seulement pendant qu'elle est maintenue.",
+			es = "La tecla del mapa abre el minimapa y lo mantiene abierto hasta volver a pulsarla, en vez de solo mientras se mantiene pulsada.",
+			["pt-BR"] = "A tecla do mapa abre o minimapa e o mantÃ©m aberto atÃ© ser pressionada de novo, em vez de sÃ³ enquanto estÃ¡ pressionada." } },
+}
+
+-- Rows bound to options came with Obsidian API 1.16 (mod_settings.BINDS); an older one gets no page.
+if api and api.mod_settings and api.mod_settings.BINDS then
 	local page = api.mod_settings.page("Obsidian QoL")
-	local function toggle(id, label, info)
-		on[id] = page:toggle(id, { label = label, info = info, default = on[id], on_change = function(v)
-			on[id] = v
-			if changed[id] then changed[id](v) end
-		end })
+	for _, row in ipairs(PAGE) do
+		local id = row.id
+		local opts = { option = true, label = row.label, info = row.info, default = on[id], choices = row.choices,
+			on_change = function(v)
+				on[id] = v
+				if changed[id] then changed[id](v) end
+			end }
+		on[id] = row.choices and page:choice(id, opts) or page:toggle(id, opts)
 	end
-	toggle("skip_intro", "Skip intro", "No logos or intro video at launch. Takes effect at the next launch.")
-	toggle("skip_login", "Skip login screen",
-		"Starts on the ship, still online, with keyboard and mouse as the player 1 controls. Takes effect at the next launch.")
-	toggle("skip_war_briefs", "Skip war briefs", "Hides the war recap shown at login after a long absence, and the short brief the galaxy map plays.")
-	toggle("skip_planet_scanning", "Skip planet scanning", "No planet discovery animation after a liberation or a new sector.")
-	on.expedite_mission_end = page:choice("expedite_mission_end", { label = "Expedite mission end", default = on.expedite_mission_end,
-		choices = { { id = "off", label = "Off" }, { id = "faster", label = "Faster" }, { id = "instant", label = "Instant" } },
-		info = "Faster gives each results screen about a second, and Instant goes straight to the last screen. Rewards are saved either way.",
-		on_change = function(v) on.expedite_mission_end = v end })
-	toggle("solo_pause", "Dynamic solo pause",
-		"With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. The game resumes as soon as someone joins.")
-	toggle("aim_cursor", "Aim cursor always visible", "On PC, the cursor keeps the aiming look at all times, instead of dimming between shots.")
-	toggle("toggle_map", "Toggle minimap",
-		"The map key opens the minimap and keeps it open until pressed again, instead of only while held. Takes effect when the game next reads the key bindings, at the latest at the next mission.")
-	toggle("widescreen", "Widescreen fixes", "No black bars on screens wider than 16:9. Takes effect at the next screen change.")
 end
 
 -- Changes a settings table as soon as the game defines it, and again if the game ever replaces the
