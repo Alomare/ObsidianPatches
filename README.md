@@ -1,6 +1,6 @@
 # Obsidian Patches
 
-Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Five of them can also be changed in game, in the pause menu under **Mods → Obsidian Patches**, and a change there goes back to Obsidian. As a client mod, it changes only the game it runs in, and it needs Obsidian API, which turns on with it.
+Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Four of them can also be changed in game, in the pause menu under **Mods → Obsidian Patches**, and a change there goes back to Obsidian. As a client mod, it changes only the game it runs in, and it needs Obsidian API, which turns on with it.
 
 | Option | What it does | Starts | In the pause menu |
 |---|---|---|---|
@@ -13,13 +13,14 @@ Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Five of them 
 | Aim cursor always visible | On PC, the cursor keeps the aiming look at all times. | Off | Yes |
 | Toggle minimap | The map key opens the minimap and keeps it open until pressed again. | Off | Yes |
 | Widescreen fixes | No black bars on screens wider than 16:9. | On | |
-| Weapon recoil after stratagems | Brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out. Covers the player, a second controller and bots run by this game. | On | Yes |
+| Weapon recoil after stratagems | Brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out. Covers the player, a second controller and bots run by this game. | On | |
+| Sprint pose after a dive | Sprinting right after getting up from a dive shows the normal running pose, instead of an upper body stuck until the sprint starts over. | On | |
 
 ## How to Use
 
 Obsidian Patches comes with [Obsidian](https://github.com/Alomare/ObsidianModManager), in the Obsidian Kit folder, switched on. It updates from this repository.
 
-All ten options are in Obsidian, in the details of Obsidian Patches, and take effect at the next launch. The five marked above are also in the game's pause menu, under **Mods**: a change there takes effect at once, and Obsidian saves it to the profile once the game is closed. The pause menu rows need Obsidian API 1.16.0 or newer.
+All eleven options are in Obsidian, in the details of Obsidian Patches, and take effect at the next launch. The four marked above are also in the game's pause menu, under **Mods**: a change there takes effect at once, and Obsidian saves it to the profile once the game is closed. The pause menu rows need Obsidian API 1.16.0 or newer.
 
 ## Releasing
 

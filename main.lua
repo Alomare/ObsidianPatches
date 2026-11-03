@@ -1,6 +1,7 @@
--- Obsidian Patches: small fixes for the game, each one an option in Obsidian. Five of them are also on
--- the pause menu's Mods page (Obsidian API 1.16 and newer), bound to the same options: a change there
--- applies at once and reaches Obsidian's mod details. The other five are read at launch. Every
+-- Obsidian Patches: small fixes for the game, each one an option in Obsidian. The four that change how
+-- the game plays are also on the pause menu's Mods page (Obsidian API 1.16 and newer), bound to the same
+-- options: a change there applies at once and reaches Obsidian's mod details. The other seven, fixes
+-- for the game's own faults and screens to skip, are read at launch. Every
 -- hook is always installed and checks its option each time, so a change from the page needs no restart.
 local has_api, api = pcall(function() return obsidian.import("obsidian.api") end)
 if not has_api then api = nil end
@@ -8,7 +9,7 @@ if not has_api then api = nil end
 local on = {
 	skip_intro = false, skip_login = false, skip_war_briefs = false, skip_planet_scanning = false,
 	expedite_mission_end = "off", solo_pause = true, aim_cursor = false, toggle_map = false, widescreen = true,
-	recoil_fix = true,
+	recoil_fix = true, dive_sprint_fix = true,
 }
 for id in pairs(on) do
 	local ok, v = pcall(obsidian.settings.get, id)
@@ -47,12 +48,6 @@ local PAGE = {
 			fr = "La touche de la carte ouvre la mini-carte et la garde ouverte jusqu'au prochain appui, au lieu de seulement pendant qu'elle est maintenue.",
 			es = "La tecla del mapa abre el minimapa y lo mantiene abierto hasta volver a pulsarla, en vez de solo mientras se mantiene pulsada.",
 			["pt-BR"] = "A tecla do mapa abre o minimapa e o mantém aberto até ser pressionada de novo, em vez de só enquanto está pressionada." } },
-	{ id = "recoil_fix",
-		label = { en = "Weapon recoil after stratagems", fr = "Recul de l'arme après les stratagèmes", es = "Retroceso del arma tras las estratagemas", ["pt-BR"] = "Recuo da arma após estratagemas" },
-		info = { en = "Brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out.",
-			fr = "Rétablit l'animation de recul de l'arme en main quand le lancer d'un stratagème la supprime.",
-			es = "Devuelve la animación de retroceso del arma en la mano cuando el lanzamiento de una estratagema la quita.",
-			["pt-BR"] = "Devolve a animação de recuo da arma na mão quando o lançamento de um estratagema a tira." } },
 }
 
 -- Rows bound to options came with Obsidian API 1.16 (mod_settings.BINDS); an older one gets no page.
@@ -423,6 +418,37 @@ do
 			if not ok or done then kept[unit] = nil end
 		end
 	end)
+end
+
+-- A sprint that ends on its own sends the animation event sprint_stop. A dive out of a sprint leaves
+-- the sprint state with no such event, so after the dive the upper body still holds the sprint, and the
+-- next sprint plays over it in a stuck pose until the player stops and sprints again. A dive that began
+-- in a sprint gets the missing sprint_stop once the character is back on foot: the dive state, or the
+-- crawl it can turn into, handing over to standing.
+do
+	local from_sprint = setmetatable({}, { __mode = "k" })
+
+	obsidian.hook("CharacterStateDodge", "on_enter", function(original, self, ctx, previous, ...)
+		from_sprint[self] = on.dive_sprint_fix and previous ~= nil and previous == rawget(_G, "CharacterStateSprint") or nil
+		return original(self, ctx, previous, ...)
+	end)
+
+	local function stand_up(unit, after)
+		if not from_sprint[unit] or after == rawget(_G, "CharacterStateCrawl") then return end
+		from_sprint[unit] = nil
+		if after ~= nil and after == rawget(_G, "CharacterStateIdle") then
+			rawget(_G, "Unit").animation_event(unit, "sprint_stop")
+		end
+	end
+
+	for _, name in ipairs({ "CharacterStateDodge", "CharacterStateCrawl" }) do
+		obsidian.hook(name, "on_exit", function(original, self, ctx, after, ...)
+			local r = { original(self, ctx, after, ...) }
+			local ok, err = pcall(stand_up, self, after)
+			if not ok then obsidian.log("dive sprint fix: " .. tostring(err)) end
+			return unpack(r)
+		end)
+	end
 end
 
 -- Every game state limits the viewport to GameSettings.max_aspect_ratio (16:9), which letterboxes

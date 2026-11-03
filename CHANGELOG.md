@@ -5,7 +5,8 @@ New, changed or removed options, one line each, brief and direct. A release's se
 ## 1.7.0
 
 - Changed: the mod is now Obsidian Patches, in Obsidian and in the pause menu, where the page title reads the name in full.
-- New: Weapon recoil after stratagems brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out. On by default, and in the pause menu.
+- New: Weapon recoil after stratagems brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out. On by default.
+- New: Sprint pose after a dive keeps the running pose normal when sprinting right after getting up from a dive. On by default.
 - Changed: the French, Spanish and Portuguese pause menu rows show accented letters correctly.
 
 ## 1.6.0
