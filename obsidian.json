@@ -1,21 +1,21 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.6.0",
-  "name": { "en": "Obsidian Quality of Life", "pt-BR": "Obsidian Qualidade de Vida", "zh-CN": "Obsidian 便利改进", "fr": "Obsidian Confort", "es": "Obsidian Calidad de Vida" },
+  "version": "1.7.0",
+  "name": { "en": "Obsidian Patches", "pt-BR": "Obsidian Patches", "zh-CN": "Obsidian Patches", "fr": "Obsidian Patches", "es": "Obsidian Patches" },
   "description": {
-    "en": "Small fixes for the game, each one an option. Four of them can also be changed in the pause menu, under Mods.",
-    "pt-BR": "Pequenas correções para o jogo, cada uma uma opção. Quatro delas também podem ser mudadas no menu de pausa, em Mods.",
-    "zh-CN": "游戏的小修正，每一项都是一个选项。其中四项也可在暂停菜单的 Mods 中更改。",
-    "fr": "Petites corrections pour le jeu, chacune en option. Quatre d'entre elles se règlent aussi dans le menu pause, sous Mods.",
-    "es": "Pequeños arreglos para el juego, cada uno una opción. Cuatro de ellos también se cambian en el menú de pausa, en Mods."
+    "en": "Small fixes for the game, each one an option. Five of them can also be changed in the pause menu, under Mods.",
+    "pt-BR": "Pequenas correções para o jogo, cada uma uma opção. Cinco delas também podem ser mudadas no menu de pausa, em Mods.",
+    "zh-CN": "游戏的小修正，每一项都是一个选项。其中五项也可在暂停菜单的 Mods 中更改。",
+    "fr": "Petites corrections pour le jeu, chacune en option. Cinq d'entre elles se règlent aussi dans le menu pause, sous Mods.",
+    "es": "Pequeños arreglos para el juego, cada uno una opción. Cinco de ellos también se cambian en el menú de pausa, en Mods."
   },
   "authors": ["Obsidian"],
   "image": "image.jpg",
   "scope": "client",
   "requires": ["obsidian.api"],
   "entry": "main.lua",
-  "source": "https://github.com/Alomare/ObsidianQoL",
+  "source": "https://github.com/Alomare/ObsidianPatches",
   "options": [
     { "id": "skip_intro", "type": "toggle", "default": true,
       "label": { "en": "Skip intro", "pt-BR": "Pular abertura", "zh-CN": "跳过开场", "fr": "Passer l'introduction", "es": "Saltar la introducción" },
@@ -54,6 +54,9 @@
       "description": { "en": "The map key opens the minimap and keeps it open until pressed again, instead of only while held.", "pt-BR": "A tecla do mapa abre o minimapa e o mantém aberto até ser pressionada de novo, em vez de só enquanto está pressionada.", "zh-CN": "地图键按一下打开小地图，再按一下才关闭，而不是只在按住时显示。", "fr": "La touche de la carte ouvre la mini-carte et la garde ouverte jusqu'au prochain appui, au lieu de seulement pendant qu'elle est maintenue.", "es": "La tecla del mapa abre el minimapa y lo mantiene abierto hasta volver a pulsarla, en vez de solo mientras se mantiene pulsada." } },
     { "id": "widescreen", "type": "toggle", "default": true,
       "label": { "en": "Widescreen fixes", "pt-BR": "Correções para tela larga", "zh-CN": "宽屏修正", "fr": "Corrections grand écran", "es": "Arreglos de pantalla ancha" },
-      "description": { "en": "No black bars on screens wider than 16:9.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9.", "es": "Sin franjas negras en pantallas más anchas que 16:9." } }
+      "description": { "en": "No black bars on screens wider than 16:9.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9.", "es": "Sin franjas negras en pantallas más anchas que 16:9." } },
+    { "id": "recoil_fix", "type": "toggle", "default": true,
+      "label": { "en": "Weapon recoil after stratagems", "pt-BR": "Recuo da arma após estratagemas", "zh-CN": "投掷战略配备后的武器后坐力", "fr": "Recul de l'arme après les stratagèmes", "es": "Retroceso del arma tras las estratagemas" },
+      "description": { "en": "Brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out.", "pt-BR": "Devolve a animação de recuo da arma na mão quando o lançamento de um estratagema a tira.", "zh-CN": "投掷战略配备后，若手中武器的后坐力动画消失，则将其恢复。", "fr": "Rétablit l'animation de recul de l'arme en main quand le lancer d'un stratagème la supprime.", "es": "Devuelve la animación de retroceso del arma en la mano cuando el lanzamiento de una estratagema la quita." } }
   ]
 }

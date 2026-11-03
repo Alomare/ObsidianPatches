@@ -1,6 +1,6 @@
--- Obsidian Quality of Life: small fixes for the game, each one an option in Obsidian. Four of them are
--- also on the pause menu's Mods page (Obsidian API 1.16 and newer), bound to the same options: a change
--- there applies at once and reaches Obsidian's mod details. The other five are read at launch. Every
+-- Obsidian Patches: small fixes for the game, each one an option in Obsidian. Five of them are also on
+-- the pause menu's Mods page (Obsidian API 1.16 and newer), bound to the same options: a change there
+-- applies at once and reaches Obsidian's mod details. The other five are read at launch. Every
 -- hook is always installed and checks its option each time, so a change from the page needs no restart.
 local has_api, api = pcall(function() return obsidian.import("obsidian.api") end)
 if not has_api then api = nil end
@@ -8,6 +8,7 @@ if not has_api then api = nil end
 local on = {
 	skip_intro = false, skip_login = false, skip_war_briefs = false, skip_planet_scanning = false,
 	expedite_mission_end = "off", solo_pause = true, aim_cursor = false, toggle_map = false, widescreen = true,
+	recoil_fix = true,
 }
 for id in pairs(on) do
 	local ok, v = pcall(obsidian.settings.get, id)
@@ -18,39 +19,45 @@ local changed = {}
 -- The pause menu rows, by language, as the options read in obsidian.json.
 local PAGE = {
 	{ id = "expedite_mission_end",
-		label = { en = "Expedite mission end", fr = "AccÃ©lÃ©rer la fin de mission", es = "Agilizar el final de la misiÃ³n", ["pt-BR"] = "Agilizar o fim da missÃ£o" },
+		label = { en = "Expedite mission end", fr = "Accélérer la fin de mission", es = "Agilizar el final de la misión", ["pt-BR"] = "Agilizar o fim da missão" },
 		info = { en = "Faster gives each results screen about a second. Instant skips to the last one. Rewards are saved either way.",
-			fr = "Plus rapide affiche chaque Ã©cran de rÃ©sultats environ une seconde. InstantanÃ© passe au dernier. Les rÃ©compenses sont enregistrÃ©es dans les deux cas.",
-			es = "MÃ¡s rÃ¡pido deja cada pantalla de resultados cerca de un segundo. InstantÃ¡neo salta a la Ãºltima. Las recompensas se guardan en ambos casos.",
-			["pt-BR"] = "Mais rÃ¡pido deixa cada tela de resultados por cerca de um segundo. InstantÃ¢neo pula para a Ãºltima. As recompensas sÃ£o salvas nos dois casos." },
+			fr = "Plus rapide affiche chaque écran de résultats environ une seconde. Instantané passe au dernier. Les récompenses sont enregistrées dans les deux cas.",
+			es = "Más rápido deja cada pantalla de resultados cerca de un segundo. Instantáneo salta a la última. Las recompensas se guardan en ambos casos.",
+			["pt-BR"] = "Mais rápido deixa cada tela de resultados por cerca de um segundo. Instantâneo pula para a última. As recompensas são salvas nos dois casos." },
 		choices = {
-			{ id = "off", label = { en = "Off", fr = "DÃ©sactivÃ©", es = "Desactivado", ["pt-BR"] = "Desligado" } },
-			{ id = "faster", label = { en = "Faster", fr = "Plus rapide", es = "MÃ¡s rÃ¡pido", ["pt-BR"] = "Mais rÃ¡pido" } },
-			{ id = "instant", label = { en = "Instant", fr = "InstantanÃ©", es = "InstantÃ¡neo", ["pt-BR"] = "InstantÃ¢neo" } },
+			{ id = "off", label = { en = "Off", fr = "Désactivé", es = "Desactivado", ["pt-BR"] = "Desligado" } },
+			{ id = "faster", label = { en = "Faster", fr = "Plus rapide", es = "Más rápido", ["pt-BR"] = "Mais rápido" } },
+			{ id = "instant", label = { en = "Instant", fr = "Instantané", es = "Instantáneo", ["pt-BR"] = "Instantâneo" } },
 		} },
 	{ id = "solo_pause",
-		label = { en = "Dynamic solo pause", fr = "Pause dynamique en solo", es = "Pausa dinÃ¡mica en solitario", ["pt-BR"] = "Pausa dinÃ¢mica solo" },
+		label = { en = "Dynamic solo pause", fr = "Pause dynamique en solo", es = "Pausa dinámica en solitario", ["pt-BR"] = "Pausa dinâmica solo" },
 		info = { en = "With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. The game resumes as soon as someone joins.",
-			fr = "Avec un seul joueur dans la mission, le menu pause fige le jeu, mÃªme dans un lobby public ou rÃ©servÃ© aux amis. Le jeu reprend dÃ¨s que quelqu'un rejoint.",
-			es = "Con un solo jugador en la misiÃ³n, el menÃº de pausa congela el juego, incluso en un lobby pÃºblico o solo para amigos. El juego sigue en cuanto alguien se une.",
-			["pt-BR"] = "Com um Ãºnico jogador na missÃ£o, o menu de pausa congela o jogo, mesmo num lobby pÃºblico ou sÃ³ para amigos. O jogo continua assim que alguÃ©m entra." } },
+			fr = "Avec un seul joueur dans la mission, le menu pause fige le jeu, même dans un lobby public ou réservé aux amis. Le jeu reprend dès que quelqu'un rejoint.",
+			es = "Con un solo jugador en la misión, el menú de pausa congela el juego, incluso en un lobby público o solo para amigos. El juego sigue en cuanto alguien se une.",
+			["pt-BR"] = "Com um único jogador na missão, o menu de pausa congela o jogo, mesmo num lobby público ou só para amigos. O jogo continua assim que alguém entra." } },
 	{ id = "aim_cursor",
-		label = { en = "Aim cursor always visible", fr = "Curseur de visÃ©e toujours visible", es = "Cursor de apuntado siempre visible", ["pt-BR"] = "Cursor de mira sempre visÃ­vel" },
+		label = { en = "Aim cursor always visible", fr = "Curseur de visée toujours visible", es = "Cursor de apuntado siempre visible", ["pt-BR"] = "Cursor de mira sempre visível" },
 		info = { en = "On PC, the cursor keeps the aiming look at all times, instead of dimming between shots.",
-			fr = "Sur PC, le curseur garde toujours l'aspect de visÃ©e au lieu de s'estomper entre les tirs.",
+			fr = "Sur PC, le curseur garde toujours l'aspect de visée au lieu de s'estomper entre les tirs.",
 			es = "En PC, el cursor mantiene siempre el aspecto de apuntado en vez de atenuarse entre disparos.",
-			["pt-BR"] = "No PC, o cursor fica sempre com a aparÃªncia de mira, em vez de esmaecer entre os tiros." } },
+			["pt-BR"] = "No PC, o cursor fica sempre com a aparência de mira, em vez de esmaecer entre os tiros." } },
 	{ id = "toggle_map",
 		label = { en = "Toggle minimap", fr = "Basculer la mini-carte", es = "Alternar minimapa", ["pt-BR"] = "Alternar minimapa" },
 		info = { en = "The map key opens the minimap and keeps it open until pressed again, instead of only while held.",
 			fr = "La touche de la carte ouvre la mini-carte et la garde ouverte jusqu'au prochain appui, au lieu de seulement pendant qu'elle est maintenue.",
 			es = "La tecla del mapa abre el minimapa y lo mantiene abierto hasta volver a pulsarla, en vez de solo mientras se mantiene pulsada.",
-			["pt-BR"] = "A tecla do mapa abre o minimapa e o mantÃ©m aberto atÃ© ser pressionada de novo, em vez de sÃ³ enquanto estÃ¡ pressionada." } },
+			["pt-BR"] = "A tecla do mapa abre o minimapa e o mantém aberto até ser pressionada de novo, em vez de só enquanto está pressionada." } },
+	{ id = "recoil_fix",
+		label = { en = "Weapon recoil after stratagems", fr = "Recul de l'arme après les stratagèmes", es = "Retroceso del arma tras las estratagemas", ["pt-BR"] = "Recuo da arma após estratagemas" },
+		info = { en = "Brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out.",
+			fr = "Rétablit l'animation de recul de l'arme en main quand le lancer d'un stratagème la supprime.",
+			es = "Devuelve la animación de retroceso del arma en la mano cuando el lanzamiento de una estratagema la quita.",
+			["pt-BR"] = "Devolve a animação de recuo da arma na mão quando o lançamento de um estratagema a tira." } },
 }
 
 -- Rows bound to options came with Obsidian API 1.16 (mod_settings.BINDS); an older one gets no page.
 if api and api.mod_settings and api.mod_settings.BINDS then
-	local page = api.mod_settings.page("Obsidian QoL")
+	local page = api.mod_settings.page("Obsidian Patches")
 	for _, row in ipairs(PAGE) do
 		local id = row.id
 		local opts = { option = true, label = row.label, info = row.info, default = on[id], choices = row.choices,
@@ -351,6 +358,70 @@ do
 			end
 		end
 		return copy
+	end)
+end
+
+-- A stratagem throw can leave the weapon layer of the character's animation (entry 6 of the state the
+-- engine gives for the unit) in a pose of the throw, and the weapon then fires with no recoil. The
+-- entry is kept when the stratagem menu opens, and once the character is back on foot with the same
+-- weapon for SETTLE frames, an entry that still differs is put back. Only units this machine runs go
+-- through the stratagem states here: the player's, a second controller's and bots.
+do
+	local LAYER, SETTLE, GIVE_UP = 6, 20, 600
+	local ON_FOOT = { "CharacterStateIdle", "CharacterStateWalk", "CharacterStateAim", "CharacterStateAimWalk", "CharacterStateSprint" }
+	local FIRING = { "CharacterStateFire", "CharacterStateWalkFire", "CharacterStateAimFire", "CharacterStateAimWalkFire" }
+	local kept = setmetatable({}, { __mode = "k" })
+
+	local function is_one_of(state, names)
+		if state == nil then return false end
+		for _, name in ipairs(names) do
+			if state == rawget(_G, name) then return true end
+		end
+		return false
+	end
+
+	local function weapon_of(unit)
+		local inv = rawget(_G, "EntityAux").state(unit, "inventory")
+		return inv and inv.current_weapon
+	end
+
+	-- A pose kept while the weapon was firing would bring back a shot, so only a calm one counts.
+	local function keep(unit, previous)
+		if not on.recoil_fix or is_one_of(previous, FIRING) then return end
+		local pose = { rawget(_G, "Unit").animation_get_state(unit) }
+		if pose[LAYER] == nil then return end
+		kept[unit] = { weapon = weapon_of(unit), value = pose[LAYER], on_foot = 0, age = 0 }
+	end
+
+	obsidian.hook("CharacterStateStratagems", "on_enter", function(original, self, ctx, previous, ...)
+		local ok, err = pcall(keep, self, previous)
+		if not ok then obsidian.log("recoil fix: " .. tostring(err)) end
+		return original(self, ctx, previous, ...)
+	end)
+
+	local function check(unit, k)
+		local units = rawget(_G, "Unit")
+		k.age = k.age + 1
+		if not on.recoil_fix or not units.alive(unit) or k.age > GIVE_UP or weapon_of(unit) ~= k.weapon then return true end
+		local cs = rawget(_G, "EntityAux").state(unit, "character")
+		k.on_foot = cs and is_one_of(cs.current_state, ON_FOOT) and k.on_foot + 1 or 0
+		if k.on_foot < SETTLE then return false end
+		local pose = { units.animation_get_state(unit) }
+		if pose[LAYER] ~= nil and pose[LAYER] ~= k.value then
+			pose[LAYER] = k.value
+			units.animation_set_state(unit, unpack(pose))
+			obsidian.log("recoil fix: weapon pose put back after a stratagem")
+		end
+		return true
+	end
+
+	obsidian.on_frame(function()
+		if next(kept) == nil then return end
+		for unit, k in pairs(kept) do
+			local ok, done = pcall(check, unit, k)
+			if not ok then obsidian.log("recoil fix: " .. tostring(done)) end
+			if not ok or done then kept[unit] = nil end
+		end
 	end)
 end
 
