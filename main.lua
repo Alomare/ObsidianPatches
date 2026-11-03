@@ -1,5 +1,45 @@
--- Obsidian Quality of Life: small fixes for the game, each one an option.
-local get = obsidian.settings.get
+-- Obsidian Quality of Life: small fixes for the game, each one a setting on the pause menu's Mods page
+-- (Obsidian API 1.11 and newer). Skip intro and Skip login act before that menu can be reached, so they
+-- read the kept value at launch; every other setting takes effect at once, its hooks always installed
+-- and checking it each time. Without the API, each keeps its default.
+local has_api, api = pcall(function() return obsidian.import("obsidian.api") end)
+if not has_api then api = nil end
+
+local on = {
+	skip_intro = false, skip_login = false, skip_war_briefs = false, skip_planet_scanning = false,
+	expedite_mission_end = "off", solo_pause = true, aim_cursor = false, toggle_map = false, widescreen = true,
+}
+-- A value Obsidian still holds from when these were options in the app starts each one off.
+for id in pairs(on) do
+	local ok, v = pcall(obsidian.settings.get, id)
+	if ok and v ~= nil then on[id] = v end
+end
+local changed = {}
+
+if api and api.mod_settings then
+	local page = api.mod_settings.page("Obsidian QoL")
+	local function toggle(id, label, info)
+		on[id] = page:toggle(id, { label = label, info = info, default = on[id], on_change = function(v)
+			on[id] = v
+			if changed[id] then changed[id](v) end
+		end })
+	end
+	toggle("skip_intro", "Skip intro", "No logos or intro video at launch. Takes effect at the next launch.")
+	toggle("skip_login", "Skip login screen",
+		"Starts on the ship, still online, with keyboard and mouse as the player 1 controls. Takes effect at the next launch.")
+	toggle("skip_war_briefs", "Skip war briefs", "Hides the war recap shown at login after a long absence, and the short brief the galaxy map plays.")
+	toggle("skip_planet_scanning", "Skip planet scanning", "No planet discovery animation after a liberation or a new sector.")
+	on.expedite_mission_end = page:choice("expedite_mission_end", { label = "Expedite mission end", default = on.expedite_mission_end,
+		choices = { { id = "off", label = "Off" }, { id = "faster", label = "Faster" }, { id = "instant", label = "Instant" } },
+		info = "Faster gives each results screen about a second, and Instant goes straight to the last screen. Rewards are saved either way.",
+		on_change = function(v) on.expedite_mission_end = v end })
+	toggle("solo_pause", "Dynamic solo pause",
+		"With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. The game resumes as soon as someone joins.")
+	toggle("aim_cursor", "Aim cursor always visible", "On PC, the cursor keeps the aiming look at all times, instead of dimming between shots.")
+	toggle("toggle_map", "Toggle minimap",
+		"The map key opens the minimap and keeps it open until pressed again, instead of only while held. Takes effect when the game next reads the key bindings, at the latest at the next mission.")
+	toggle("widescreen", "Widescreen fixes", "No black bars on screens wider than 16:9. Takes effect at the next screen change.")
+end
 
 -- Changes a settings table as soon as the game defines it, and again if the game ever replaces the
 -- table with a new one. The per-frame check is one lookup and one comparison.
@@ -18,7 +58,7 @@ end
 
 -- StateLogos and the intro cutscene skip when Boot.arguments.skip_splash is set. Boot.arguments is
 -- built from ARGUMENTS after mods start, and the frame callback covers the case where it isn't.
-if get("skip_intro") then
+if on.skip_intro then
 	local a = rawget(_G, "ARGUMENTS")
 	if type(a) == "table" then a.skip_splash = true end
 	obsidian.on_frame(function()
@@ -37,7 +77,7 @@ end
 -- 2. At the login step, the steps the menu takes for a Steam invite: ask for the ship with the
 --    Steam backend. The menu finishes the online setup (backend, campaign) before it leaves.
 -- ARGUMENTS.autohost would skip both but picks the LAN backend, which stays offline.
-if get("skip_login") then
+if on.skip_login then
 	local clicked, done = false, false
 	local function click(self)
 		local pad = rawget(_G, "KEYBOARD_MOUSE_PAD_NUMBER")
@@ -89,9 +129,9 @@ end
 -- since the last brief, or the snapshots since the last login. The recap screen still runs its own
 -- entry, which records the war as seen, and then leaves at once. A recap the player asks for, and the
 -- war's end, which goes on to the season end and its save, are left to play.
-if get("skip_war_briefs") then
+do
 	obsidian.hook("StateMenu", "on_enter", function(original, self, params, ...)
-		if type(params) == "table" and params.show_recap then
+		if on.skip_war_briefs and type(params) == "table" and params.show_recap then
 			params.show_recap = false
 			obsidian.log("skip war briefs: recap skipped")
 		end
@@ -111,7 +151,7 @@ if get("skip_war_briefs") then
 		local by_player = asked
 		asked, waiting = false, nil
 		local r = { original(self, ...) }
-		if not by_player and not keeps(self) and not self.wants_exit then
+		if on.skip_war_briefs and not by_player and not keeps(self) and not self.wants_exit then
 			if #(self.snapshots or {}) > 0 then
 				self.wants_exit = true
 				obsidian.log("skip war briefs: brief skipped")
@@ -137,13 +177,21 @@ end
 
 -- The planet discovery animation is a list of timed steps in CampaignSettings (about 6.75 s in
 -- all). Each step keeps a tiny time instead of 0, so the screen never divides by zero.
-if get("skip_planet_scanning") then
-	when_defined("CampaignSettings", function(s)
-		for _, step in ipairs(s.planet_scanning_states or {}) do
-			if type(step) == "table" and type(step.time) == "number" then step.time = 0.01 end
+do
+	local steps, real = nil, setmetatable({}, { __mode = "k" })
+	local function apply()
+		for _, step in ipairs(steps or {}) do
+			if type(step) == "table" and type(step.time) == "number" then
+				if real[step] == nil then real[step] = step.time end
+				step.time = on.skip_planet_scanning and 0.01 or real[step]
+			end
 		end
-		obsidian.log("skip planet scanning: steps shortened")
+	end
+	when_defined("CampaignSettings", function(s)
+		steps = s.planet_scanning_states
+		apply()
 	end)
+	changed.skip_planet_scanning = apply
 end
 
 -- Dynamic solo pause. The game never stops a mission for its pause menu, whoever is in the lobby.
@@ -152,7 +200,7 @@ end
 -- component keeps the commands sent to it, and the game takes back some of their data at the end of
 -- the frame (TempTableFactory), so those get their own copy. Someone joining unfreezes it at once.
 -- Only what this paused is resumed: a freeze another mod made, such as Obsidian API's, stays.
-if get("solo_pause") then
+do
 	local COMPONENTS = { "navmesh_mover", "enemy" }
 	local WAITING = { navmesh_mover = true, enemy = true }
 	local frozen, menu_open, ours, real_queue, copying = false, false, {}, nil, nil
@@ -222,10 +270,10 @@ if get("solo_pause") then
 		obsidian.log("solo pause: " .. (on and "frozen" or "running again"))
 	end
 
-	obsidian.hook("MenuScreenMain", "set_active_pause", function(original, self, on, ...)
-		local r = { original(self, on, ...) }
-		menu_open = on == true
-		local ok, err = pcall(freeze, menu_open and in_mission() and alone())
+	obsidian.hook("MenuScreenMain", "set_active_pause", function(original, self, pausing, ...)
+		local r = { original(self, pausing, ...) }
+		menu_open = pausing == true
+		local ok, err = pcall(freeze, on.solo_pause and menu_open and in_mission() and alone())
 		if not ok then obsidian.log("solo pause: stopped after an error:", err) end
 		return unpack(r)
 	end)
@@ -233,7 +281,7 @@ if get("solo_pause") then
 	obsidian.on_frame(function()
 		if not frozen then return end
 		local joined = not alone()
-		if joined or not menu_open or not in_mission() then
+		if joined or not menu_open or not in_mission() or not on.solo_pause then
 			if joined then obsidian.log("solo pause: someone joined") end
 			local ok, err = pcall(freeze, false)
 			if not ok then obsidian.log("solo pause: could not unfreeze:", err) end
@@ -244,7 +292,7 @@ end
 -- The game's own crosshair option shows the cursor dimmed between shots. This keeps the aiming
 -- cursor up instead. It answers the input code alone, so the option in the game's menu stays as the
 -- player set it.
-if get("aim_cursor") then
+do
 	local inside = false
 	obsidian.hook("InputComponent", "update_masters", function(original, ...)
 		inside = true
@@ -253,11 +301,11 @@ if get("aim_cursor") then
 		if not ok then error(err, 0) end
 	end)
 	obsidian.hook("SaveManager", "get", function(original, self, key, ...)
-		if inside and key == "crosshair_always_visible" then return true end
+		if on.aim_cursor and inside and key == "crosshair_always_visible" then return true end
 		return original(self, key, ...)
 	end)
 	obsidian.hook("CursorManager", "set_cursor", function(original, self, name, ...)
-		if inside and name == "hud/cursors/game_inactive" then name = "hud/cursors/game" end
+		if on.aim_cursor and inside and name == "hud/cursors/game_inactive" then name = "hud/cursors/game" end
 		return original(self, name, ...)
 	end)
 end
@@ -265,10 +313,10 @@ end
 -- The game can already make a key toggle: a sticky binding, the Keybindings menu's own setting, and
 -- how a pad's map key starts. The input code gets a copy of its bindings with the map's set to that,
 -- so the player's saved keybindings and that menu stay as they are.
-if get("toggle_map") then
+do
 	obsidian.hook("InputRebinder", "get_or_default", function(original, self, ...)
 		local bindings = original(self, ...)
-		if type(bindings) ~= "table" then return bindings end
+		if not on.toggle_map or type(bindings) ~= "table" then return bindings end
 		local copy = {}
 		for i, binding in ipairs(bindings) do
 			copy[i] = binding
@@ -287,13 +335,18 @@ end
 
 -- Every game state limits the viewport to GameSettings.max_aspect_ratio (16:9), which letterboxes
 -- wider screens. A high limit lets the viewport fill the screen.
-if get("widescreen") then
+do
+	local settings, real = nil, nil
+	local function apply()
+		if not settings then return end
+		if real == nil then real = settings.max_aspect_ratio end
+		if type(real) == "number" then settings.max_aspect_ratio = on.widescreen and 10 or real end
+	end
 	when_defined("GameSettings", function(s)
-		if type(s.max_aspect_ratio) == "number" then
-			s.max_aspect_ratio = 10
-			obsidian.log("widescreen: aspect ratio limit lifted")
-		end
+		settings, real = s, nil
+		apply()
 	end)
+	changed.widescreen = apply
 
 	-- A 3D preview, such as the Armory's character, renders into part of the screen sized against
 	-- 1280x720, and shows up in a box sized the same way. On a wider screen that part is wider than
@@ -302,7 +355,7 @@ if get("widescreen") then
 	obsidian.hook("PreviewWindow", "update_dimensions", function(original, self)
 		original(self)
 		local width, height = rawget(_G, "Application").resolution()
-		if width / height > 16 / 9 then
+		if on.widescreen and width / height > 16 / 9 then
 			self.norm_width = self.width / 720 * height / width
 			self.viewport_proxy:set_rect(self.norm_x, self.norm_y, self.norm_width, self.norm_height)
 		end
@@ -317,8 +370,7 @@ end
 -- Instant goes from waiting for data straight to Done, as the game's own debug skip does.
 -- Faster runs each result screen in about a second: steps listed in sub_state_states are timed
 -- to fit, and a screen still showing after that runs ever faster until it ends.
-local expedite = get("expedite_mission_end")
-if expedite == "faster" or expedite == "instant" then
+do
 	local SHOWN = {
 		"MissionEndStateMissionResult", "MissionEndStateMissionScore", "MissionEndStateGenocideResults",
 		"MissionEndStateExperienceDistribution", "MissionEndStateIndividualStats", "MissionEndStatePrePlanetPause",
@@ -343,6 +395,7 @@ if expedite == "faster" or expedite == "instant" then
 	-- Instant presses for all three screens at once: a host still showing one of them waits for
 	-- this player's press there.
 	local function press(self)
+		local expedite = on.expedite_mission_end
 		local name = current(self)
 		if not name or phase.pressed then return end
 		phase.pressed = true
@@ -359,6 +412,8 @@ if expedite == "faster" or expedite == "instant" then
 	end
 
 	obsidian.hook("StateMissionEnd", "change_state", function(original, self, sub, ...)
+		local expedite = on.expedite_mission_end
+		if expedite ~= "faster" and expedite ~= "instant" then return original(self, sub, ...) end
 		local done = rawget(_G, "MissionEndStateDone")
 		if expedite == "instant" and done and sub ~= nil and sub ~= done and sub ~= rawget(_G, "MissionEndStateWaitingForData") then
 			sub = done
@@ -378,9 +433,9 @@ if expedite == "faster" or expedite == "instant" then
 		return unpack(r)
 	end)
 
-	if expedite == "faster" then
+	do
 		obsidian.hook("StateMissionEnd", "update", function(original, self, dt, ...)
-			if type(dt) == "number" then
+			if on.expedite_mission_end == "faster" and type(dt) == "number" then
 				phase.elapsed = phase.elapsed + dt
 				if phase.elapsed > PHASE then
 					phase.speed = math.min(phase.speed * 1.25, 1000)
@@ -391,7 +446,7 @@ if expedite == "faster" or expedite == "instant" then
 		end)
 		for _, name in ipairs(SHOWN) do
 			obsidian.hook(name, "update", function(original, self, dt, ...)
-				if type(dt) == "number" then dt = dt * phase.speed end
+				if on.expedite_mission_end == "faster" and type(dt) == "number" then dt = dt * phase.speed end
 				return original(self, dt, ...)
 			end)
 		end

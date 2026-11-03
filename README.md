@@ -1,8 +1,8 @@
 # Obsidian Quality of Life
 
-Small fixes for HELLDIVERS (2015), each one an option. As a client mod, it changes only the game it runs in.
+Small fixes for HELLDIVERS (2015), each one a setting in the pause menu, under **Mods → Obsidian QoL**. Skip intro and Skip login screen take effect at the next launch; the others at once. As a client mod, it changes only the game it runs in, and it needs Obsidian API, which turns on with it.
 
-| Option | What it does | Starts |
+| Setting | What it does | Starts |
 |---|---|---|
 | Skip intro | No logos or intro video at launch. | Off |
 | Skip login screen | Starts on the ship, still online, with keyboard and mouse as the player 1 controls. | Off |
@@ -18,7 +18,7 @@ Small fixes for HELLDIVERS (2015), each one an option. As a client mod, it chang
 
 Obsidian Quality of Life comes with [Obsidian](https://github.com/Alomare/ObsidianModManager), in the Obsidian Kit folder, switched on. It updates from this repository.
 
-Select it in the Mods tab to change the options, and deploy to apply the mod.
+The settings are in the game's pause menu, under **Mods**.
 
 ## Releasing
 

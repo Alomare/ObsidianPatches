@@ -1,57 +1,18 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "name": { "en": "Obsidian Quality of Life", "pt-BR": "Obsidian Qualidade de Vida", "zh-CN": "Obsidian 便利改进", "fr": "Obsidian Confort", "es": "Obsidian Calidad de Vida" },
   "description": {
-    "en": "Small fixes for the game, each one an option.",
-    "pt-BR": "Pequenas correções para o jogo, cada uma uma opção.",
-    "zh-CN": "游戏的小修正，每一项都是一个选项。",
-    "fr": "Petites corrections pour le jeu, chacune en option.",
-    "es": "Pequeños arreglos para el juego, cada uno una opción."
+    "en": "Small fixes for the game, each one a setting under Mods in the pause menu.",
+    "pt-BR": "Pequenas correções para o jogo, cada uma um ajuste em Mods, no menu de pausa.",
+    "zh-CN": "游戏的小修正，每一项都可在暂停菜单的 Mods 中设置。",
+    "fr": "Petites corrections pour le jeu, chacune réglable dans Mods, au menu pause.",
+    "es": "Pequeños arreglos para el juego, cada uno un ajuste en Mods, en el menú de pausa."
   },
   "authors": ["Obsidian"],
   "scope": "client",
+  "requires": ["obsidian.api"],
   "entry": "main.lua",
-  "source": "https://github.com/Alomare/ObsidianQoL",
-  "options": [
-    { "id": "skip_intro", "type": "toggle", "default": false,
-      "label": { "en": "Skip intro", "pt-BR": "Pular abertura", "zh-CN": "跳过开场", "fr": "Passer l'introduction", "es": "Saltar la introducción" },
-      "description": { "en": "No logos or intro video at launch.", "pt-BR": "Sem logotipos nem vídeo de abertura ao iniciar.", "zh-CN": "启动时不显示标志和开场视频。", "fr": "Pas de logos ni de vidéo d'introduction au lancement.", "es": "Sin logotipos ni vídeo de introducción al iniciar." } },
-    { "id": "skip_login", "type": "toggle", "default": false,
-      "label": { "en": "Skip login screen", "pt-BR": "Pular tela de login", "zh-CN": "跳过登录界面", "fr": "Passer l'écran de connexion", "es": "Saltar la pantalla de inicio de sesión" },
-      "description": { "en": "Starts on the ship, still online, with keyboard and mouse as the player 1 controls.", "pt-BR": "Direto para a nave, ainda online. Teclado e mouse viram os controles do jogador 1.", "zh-CN": "直接进入飞船，仍保持在线。键盘和鼠标成为 1 号玩家的操作方式。", "fr": "Directement au vaisseau, toujours en ligne. Le clavier et la souris deviennent les commandes du joueur 1.", "es": "Directo a la nave, aún en línea. El teclado y el ratón pasan a ser los controles del jugador 1." } },
-    { "id": "skip_war_briefs", "type": "toggle", "default": false,
-      "label": { "en": "Skip war briefs", "pt-BR": "Pular resumos da guerra", "zh-CN": "跳过战争简报", "fr": "Passer les bilans de guerre", "es": "Saltar los resúmenes de guerra" },
-      "description": { "en": "Hides the war recap shown at login after a long absence.", "pt-BR": "Sem resumo da guerra quando você entra depois de muito tempo.", "zh-CN": "长时间未登录后再进入时不显示战争回顾。", "fr": "Pas de récapitulatif de la guerre après une longue absence.", "es": "Sin resumen de la guerra al entrar tras mucho tiempo." } },
-    { "id": "skip_planet_scanning", "type": "toggle", "default": false,
-      "label": { "en": "Skip planet scanning", "pt-BR": "Pular varredura de planetas", "zh-CN": "跳过行星扫描", "fr": "Passer le balayage des planètes", "es": "Saltar el escaneo de planetas" },
-      "description": { "en": "No planet discovery animation after a liberation or a new sector.", "pt-BR": "Sem animação de descoberta de planetas após uma libertação ou um novo setor.", "zh-CN": "解放行星或进入新星区后不显示行星发现动画。", "fr": "Pas d'animation de découverte de planètes après une libération ou un nouveau secteur.", "es": "Sin animación de descubrimiento de planetas tras una liberación o un sector nuevo." } },
-    { "id": "expedite_mission_end", "type": "choice", "default": "off",
-      "choices": [
-        { "id": "off", "label": { "en": "Off", "pt-BR": "Desligado", "zh-CN": "关闭", "fr": "Désactivé", "es": "Desactivado" } },
-        { "id": "faster", "label": { "en": "Faster", "pt-BR": "Mais rápido", "zh-CN": "加快", "fr": "Plus rapide", "es": "Más rápido" } },
-        { "id": "instant", "label": { "en": "Instant", "pt-BR": "Instantâneo", "zh-CN": "立即", "fr": "Instantané", "es": "Instantáneo" } }
-      ],
-      "label": { "en": "Expedite mission end", "pt-BR": "Agilizar o fim da missão", "zh-CN": "加快任务结算", "fr": "Accélérer la fin de mission", "es": "Agilizar el final de la misión" },
-      "description": {
-        "en": "Faster gives each results screen about a second. Instant skips to the last one. Rewards are saved either way.",
-        "pt-BR": "Mais rápido deixa cada tela de resultados por cerca de um segundo. Instantâneo pula para a última. As recompensas são salvas nos dois casos.",
-        "zh-CN": "加快：每个结算画面约显示一秒。立即：跳到最后一个画面。两种方式都会保存奖励。",
-        "fr": "Plus rapide affiche chaque écran de résultats environ une seconde. Instantané passe au dernier. Les récompenses sont enregistrées dans les deux cas.",
-        "es": "Más rápido deja cada pantalla de resultados cerca de un segundo. Instantáneo salta a la última. Las recompensas se guardan en ambos casos."
-      } },
-    { "id": "solo_pause", "type": "toggle", "default": true,
-      "label": { "en": "Dynamic solo pause", "pt-BR": "Pausa dinâmica solo", "zh-CN": "单人动态暂停", "fr": "Pause dynamique en solo", "es": "Pausa dinámica en solitario" },
-      "description": { "en": "With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. The game resumes as soon as someone joins.", "pt-BR": "Quando você está sozinho numa missão, o menu de pausa congela o jogo, mesmo num lobby público ou só para amigos. O jogo continua assim que alguém entra.", "zh-CN": "当你独自在任务中时，暂停菜单会冻结游戏，即使大厅设为公开或仅限好友。一旦有人加入，游戏就会继续。", "fr": "Quand vous êtes seul dans une mission, le menu pause fige le jeu, même dans un lobby public ou réservé aux amis. Le jeu reprend dès que quelqu'un rejoint.", "es": "Cuando estás solo en una misión, el menú de pausa congela el juego, incluso en un lobby público o solo para amigos. El juego sigue en cuanto alguien se une." } },
-    { "id": "aim_cursor", "type": "toggle", "default": false,
-      "label": { "en": "Aim cursor always visible", "pt-BR": "Cursor de mira sempre visível", "zh-CN": "瞄准光标始终显示", "fr": "Curseur de visée toujours visible", "es": "Cursor de apuntado siempre visible" },
-      "description": { "en": "On PC, the cursor keeps the aiming look at all times, instead of dimming between shots.", "pt-BR": "No PC, o cursor fica sempre com a aparência de mira, em vez de esmaecer entre os tiros.", "zh-CN": "在 PC 上，光标始终保持瞄准样式，而不会在射击间隙变暗。", "fr": "Sur PC, le curseur garde toujours son aspect de visée au lieu de s'estomper entre les tirs.", "es": "En PC, el cursor mantiene siempre su aspecto de apuntado en vez de atenuarse entre disparos." } },
-    { "id": "toggle_map", "type": "toggle", "default": false,
-      "label": { "en": "Toggle minimap", "pt-BR": "Alternar minimapa", "zh-CN": "切换小地图", "fr": "Basculer la mini-carte", "es": "Alternar minimapa" },
-      "description": { "en": "The map key opens the minimap and keeps it open until pressed again, instead of only while held.", "pt-BR": "A tecla do mapa abre o minimapa e o mantém aberto até você apertá-la de novo, em vez de só enquanto está pressionada.", "zh-CN": "地图键按一下打开小地图，再按一下才关闭，而不是只在按住时显示。", "fr": "La touche de la carte ouvre la mini-carte et la garde ouverte jusqu'au prochain appui, au lieu de seulement pendant qu'elle est maintenue.", "es": "La tecla del mapa abre el minimapa y lo mantiene abierto hasta que la vuelves a pulsar, en vez de solo mientras la mantienes." } },
-    { "id": "widescreen", "type": "toggle", "default": true,
-      "label": { "en": "Widescreen fixes", "pt-BR": "Correções para tela larga", "zh-CN": "宽屏修正", "fr": "Corrections grand écran", "es": "Arreglos de pantalla ancha" },
-      "description": { "en": "No black bars on screens wider than 16:9.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9.", "es": "Sin franjas negras en pantallas más anchas que 16:9." } }
-  ]
+  "source": "https://github.com/Alomare/ObsidianQoL"
 }
