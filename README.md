@@ -4,17 +4,17 @@ Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Four of them 
 
 | Option | What it does | Starts | In the pause menu |
 |---|---|---|---|
+| Widescreen fixes | No black bars on screens wider than 16:9. | On | |
+| Expedite mission end | Faster gives each results screen about a second, and Instant goes straight to the last screen. Rewards are saved either way. | Faster | Yes |
 | Skip intro | No logos or intro video at launch. | On | |
 | Skip login screen | Starts on the ship, still online, with keyboard and mouse as the player 1 controls. | On | |
 | Skip war briefs | Hides the war recap shown at login after a long absence. | Off | |
 | Skip planet scanning | No planet discovery animation after a liberation or a new sector. | On | |
-| Expedite mission end | Faster gives each results screen about a second, and Instant goes straight to the last screen. Rewards are saved either way. | Faster | Yes |
 | Dynamic solo pause | With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. | On | Yes |
 | Aim cursor always visible | On PC, the cursor keeps the aiming look at all times. | Off | Yes |
 | Toggle minimap | The map key opens the minimap and keeps it open until pressed again. | Off | Yes |
-| Widescreen fixes | No black bars on screens wider than 16:9. | On | |
-| Weapon recoil after stratagems | Brings back the recoil animation of the weapon in hand when a stratagem throw leaves it out. Covers the player, a second controller and bots run by this game. | On | |
-| Sprint pose after a dive | Sprinting right after getting up from a dive shows the normal running pose, instead of an upper body stuck until the sprint starts over. | On | |
+| Weapon recoil animation fix | Brings back the recoil animation of the weapon in hand when a stratagem throw, or a weapon picked up from the ground, leaves it out. Covers the player, a second controller and bots run by this game. | On | |
+| Sprint pose fix | Sprinting right after getting up from a dive shows the normal running pose, instead of an upper body stuck until the sprint starts over. | On | |
 
 ## How to Use
 

@@ -2,6 +2,12 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## 1.8.0
+
+- Changed: Weapon recoil after stratagems is now Weapon recoil animation fix, and also brings the recoil animation back after picking up a weapon from the ground.
+- Changed: Sprint pose after a dive is now Sprint pose fix.
+- Changed: Widescreen fixes and Expedite mission end come first in the option list.
+
 ## 1.7.0
 
 - Changed: the mod is now Obsidian Patches, in Obsidian and in the pause menu, where the page title reads the name in full.
