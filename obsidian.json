@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "name": { "en": "Obsidian Quality of Life", "pt-BR": "Obsidian Qualidade de Vida", "zh-CN": "Obsidian 便利改进", "fr": "Obsidian Confort", "es": "Obsidian Calidad de Vida" },
   "description": {
     "en": "Small fixes for the game, each one an option. Four of them can also be changed in the pause menu, under Mods.",
@@ -11,24 +11,25 @@
     "es": "Pequeños arreglos para el juego, cada uno una opción. Cuatro de ellos también se cambian en el menú de pausa, en Mods."
   },
   "authors": ["Obsidian"],
+  "image": "image.jpg",
   "scope": "client",
   "requires": ["obsidian.api"],
   "entry": "main.lua",
   "source": "https://github.com/Alomare/ObsidianQoL",
   "options": [
-    { "id": "skip_intro", "type": "toggle", "default": false,
+    { "id": "skip_intro", "type": "toggle", "default": true,
       "label": { "en": "Skip intro", "pt-BR": "Pular abertura", "zh-CN": "跳过开场", "fr": "Passer l'introduction", "es": "Saltar la introducción" },
       "description": { "en": "No logos or intro video at launch.", "pt-BR": "Sem logotipos nem vídeo de abertura ao iniciar.", "zh-CN": "启动时不显示标志和开场视频。", "fr": "Pas de logos ni de vidéo d'introduction au lancement.", "es": "Sin logotipos ni vídeo de introducción al iniciar." } },
-    { "id": "skip_login", "type": "toggle", "default": false,
+    { "id": "skip_login", "type": "toggle", "default": true,
       "label": { "en": "Skip login screen", "pt-BR": "Pular tela de login", "zh-CN": "跳过登录界面", "fr": "Passer l'écran de connexion", "es": "Saltar la pantalla de inicio de sesión" },
       "description": { "en": "Starts on the ship, still online, with keyboard and mouse as the player 1 controls.", "pt-BR": "Começa na nave, ainda online, com teclado e mouse como controles do jogador 1.", "zh-CN": "从飞船开始，仍保持在线，键盘和鼠标作为 1 号玩家的操作方式。", "fr": "Démarre sur le vaisseau, toujours en ligne, avec le clavier et la souris comme commandes du joueur 1.", "es": "Empieza en la nave, aún en línea, con el teclado y el ratón como controles del jugador 1." } },
     { "id": "skip_war_briefs", "type": "toggle", "default": false,
       "label": { "en": "Skip war briefs", "pt-BR": "Pular resumos da guerra", "zh-CN": "跳过战争简报", "fr": "Passer les bilans de guerre", "es": "Saltar los resúmenes de guerra" },
       "description": { "en": "Hides the war recap shown at login after a long absence.", "pt-BR": "Esconde o resumo da guerra mostrado no login após uma longa ausência.", "zh-CN": "隐藏长时间未登录后登录时显示的战争回顾。", "fr": "Masque le récapitulatif de la guerre affiché à la connexion après une longue absence.", "es": "Oculta el resumen de la guerra que aparece al iniciar sesión tras una larga ausencia." } },
-    { "id": "skip_planet_scanning", "type": "toggle", "default": false,
+    { "id": "skip_planet_scanning", "type": "toggle", "default": true,
       "label": { "en": "Skip planet scanning", "pt-BR": "Pular varredura de planetas", "zh-CN": "跳过行星扫描", "fr": "Passer le balayage des planètes", "es": "Saltar el escaneo de planetas" },
       "description": { "en": "No planet discovery animation after a liberation or a new sector.", "pt-BR": "Sem animação de descoberta de planetas após uma libertação ou um novo setor.", "zh-CN": "解放行星或进入新星区后不显示行星发现动画。", "fr": "Pas d'animation de découverte de planètes après une libération ou un nouveau secteur.", "es": "Sin animación de descubrimiento de planetas tras una liberación o un sector nuevo." } },
-    { "id": "expedite_mission_end", "type": "choice", "default": "off",
+    { "id": "expedite_mission_end", "type": "choice", "default": "faster",
       "choices": [
         { "id": "off", "label": { "en": "Off", "pt-BR": "Desligado", "zh-CN": "关闭", "fr": "Désactivé", "es": "Desactivado" } },
         { "id": "faster", "label": { "en": "Faster", "pt-BR": "Mais rápido", "zh-CN": "加快", "fr": "Plus rapide", "es": "Más rápido" } },
