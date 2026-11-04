@@ -5,6 +5,7 @@ New, changed or removed options, one line each, brief and direct. A release's se
 ## 1.10.0
 
 - Changed: **Widescreen fixes** also puts the mission's objective list in the top right corner of the screen and dialogue boxes (the ship's characters, briefings) at the left edge, instead of inside the 16:9 middle.
+- Changed: **Widescreen fixes** also moves the galaxy map's planet panel, the planet's reward and mission panels to the screen's edges, and stretches the galaxy map's scanline overlay across the whole screen.
 
 ## 1.9.1
 

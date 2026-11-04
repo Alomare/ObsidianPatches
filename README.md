@@ -4,7 +4,7 @@ Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Five of them 
 
 | Option | What it does | Starts | In the pause menu |
 |---|---|---|---|
-| Widescreen fixes | No black bars on screens wider than 16:9, and the objective list and dialogue boxes in the real corners of the screen. | On | |
+| Widescreen fixes | No black bars on screens wider than 16:9, and the objective list, dialogue boxes and galaxy map panels at the real edges of the screen. | On | |
 | Expedite mission end | Faster gives each results screen about a second, and Instant goes straight to the last screen. Rewards are saved either way. | Faster | Yes |
 | Skip intro | No logos or intro video at launch. | On | |
 | Skip login screen | Starts on the ship, still online, with keyboard and mouse as the player 1 controls. | On | |

@@ -534,6 +534,65 @@ do
 		return pinned({ gui }, "right", original, self, gui, ...)
 	end)
 
+	-- The galaxy map's menus draw with GuiManager, which centres the 1280x720 layout by adding
+	-- (rect.w - design_width * scale) / 2 to each position (GuiManager.calculate_pos). While a panel
+	-- draws, each position is moved by that much again to the side it stands on: whatever starts past
+	-- 60% of the layout's width goes to the right edge, whatever ends before 40% to the left edge, and
+	-- what crosses the middle, such as a title, stays.
+	local function margin(gm)
+		local ok, sx, sy = pcall(gm.get_scale, gm)
+		if not ok then return nil end
+		local s = math.min(sx, sy)
+		local area = gm.gui_settings.design_width * s / (gm.ui_scale_user or 1)
+		return (gm.rect.w - area) / 2, area
+	end
+
+	local function sides_pinned(gm, fn, ...)
+		local extra, area = nil, nil
+		if type(gm) == "table" and type(gm.rect) == "table" and type(gm.gui_settings) == "table" then extra, area = margin(gm) end
+		if not extra or extra <= 0 or rawget(gm, "calculate_pos") then return fn(...) end
+		local real = gm.calculate_pos
+		gm.calculate_pos = function(self, pos, size, ...)
+			local a, b, c = real(self, pos, size, ...)
+			if a then
+				local w = b and b.x or 0
+				local from, to = (a.x - extra) / area, (a.x + w - extra) / area
+				if from > 0.6 then a.x = a.x + extra elseif to < 0.4 then a.x = a.x - extra end
+			end
+			return a, b, c
+		end
+		local function pack(...) return { n = select("#", ...), ... } end
+		local r = pack(pcall(fn, ...))
+		gm.calculate_pos = nil
+		if not r[1] then error(r[2], 0) end
+		return unpack(r, 2, r.n)
+	end
+
+	-- The region's planet panel, and the planet's reward and mission panels.
+	obsidian.hook("MenuScreenCampaignPlanet", "show_planet_info", function(original, self, gm, ...)
+		if not wide() then return original(self, gm, ...) end
+		return sides_pinned(gm, original, self, gm, ...)
+	end)
+	obsidian.hook("MenuScreenCampaignMission", "show_mission_info", function(original, self, gm, ...)
+		if not wide() then return original(self, gm, ...) end
+		return sides_pinned(gm, original, self, gm, ...)
+	end)
+
+	-- The galaxy map's scanline overlay is as wide as the layout: for its draw, the layout is as wide as
+	-- the screen, which also takes the centring away.
+	obsidian.hook("MenuScreenCampaign", "draw_scanlines", function(original, self, dt, layer, gm, ...)
+		if not (wide() and type(gm) == "table" and type(gm.gui_settings) == "table" and type(gm.rect) == "table") then
+			return original(self, dt, layer, gm, ...)
+		end
+		local settings = gm.gui_settings
+		local real = settings.design_width
+		local ok, sx, sy = pcall(gm.get_scale, gm)
+		if ok then settings.design_width = gm.rect.w * (gm.ui_scale_user or 1) / math.min(sx, sy) end
+		local done, err = pcall(original, self, dt, layer, gm, ...)
+		settings.design_width = real
+		if not done then error(err, 0) end
+	end)
+
 	-- A character's dialogue box, set over the first player's card at the left: on the ship, in the
 	-- galaxy map's briefings and in missions. It draws on two guis, the HUD's own unless given.
 	obsidian.hook("Hud", "draw_dialogue", function(original, self, ...)
