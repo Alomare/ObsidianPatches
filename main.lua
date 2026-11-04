@@ -893,10 +893,27 @@ do
 	end)
 
 	-- The game's join at a press waits for the hold.
+	-- Only the join a press asks for waits: the one StateGame.handle_input and StateMenu.handle_input
+	-- send for a gamepad nobody plays on. The same message also adds every local player when this
+	-- machine joins a session (StateMenu.on_added_to_session, at login and on the way to the ship), and
+	-- holding that one back leaves the ship without a Helldiver.
+	local function pressing(class)
+		obsidian.hook(class, "handle_input", function(original, ...)
+			dyn.pressing = true
+			local function pack(...) return { n = select("#", ...), ... } end
+			local r = pack(pcall(original, ...))
+			dyn.pressing = false
+			if not r[1] then error(r[2], 0) end
+			return unpack(r, 2, r.n)
+		end)
+	end
+	pressing("StateGame")
+	pressing("StateMenu")
+
 	-- The arguments go on exactly as they came: an RPC is sent with as many values as it's given, and a
 	-- named one more would add a nil the session doesn't expect, which ends it.
 	obsidian.hook("NetworkRouter", "transmit_to", function(original, self, peer, message, ...)
-		if on.dynamic_input and message == JOIN_RPC and not dyn.allowed[(...)] then return end
+		if on.dynamic_input and dyn.pressing and message == JOIN_RPC and not dyn.allowed[(...)] then return end
 		return original(self, peer, message, ...)
 	end)
 

@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "name": { "en": "Obsidian Patches", "pt-BR": "Obsidian Patches", "zh-CN": "Obsidian Patches", "fr": "Obsidian Patches", "es": "Obsidian Patches" },
   "description": {
     "en": "Small fixes for the game, each one an option. Five of them can also be changed in the pause menu, under Mods.",
