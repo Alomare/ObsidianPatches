@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## 1.9.0
+
+- New: **Dynamic input switch**, off by default. With a keyboard and a gamepad connected, both control the first Helldiver and the button prompts follow the last one used; the gamepad joins as a second Helldiver only when its join button is held for 1.5 seconds, and the prompt reads HOLD instead of PRESS.
+
 ## 1.8.2
 
 - Changed: a new image beside the mod in Obsidian's mod list.
