@@ -500,6 +500,47 @@ do
 			self.viewport_proxy:set_rect(self.norm_x, self.norm_y, self.norm_width, self.norm_height)
 		end
 	end)
+
+	-- The HUD lays out a 1280x720 screen and centres it (HdGui.update_offsets), so on a wider screen
+	-- an element meant for a corner stands inside the 16:9 middle. The position HdGui draws at adds
+	-- resolution_offset_x each time (HdGui.calculate_pos): while such an element draws, the offset
+	-- is doubled to reach the right edge, or zeroed for the left one, then put back.
+	local function wide()
+		local app = rawget(_G, "Application")
+		local ok, w, h = pcall(app.resolution)
+		return on.widescreen and ok and type(w) == "number" and h > 0 and w / h > 16 / 9 + 0.01
+	end
+
+	local function pinned(guis, side, fn, ...)
+		local kept = {}
+		for i, gui in ipairs(guis) do
+			if type(gui) == "table" and type(gui.resolution_offset_x) == "number" then
+				kept[i] = gui.resolution_offset_x
+				gui.resolution_offset_x = side == "right" and gui.resolution_offset_x * 2 or 0
+			end
+		end
+		local function pack(...) return { n = select("#", ...), ... } end
+		local r = pack(pcall(fn, ...))
+		for i, gui in ipairs(guis) do
+			if kept[i] then gui.resolution_offset_x = kept[i] end
+		end
+		if not r[1] then error(r[2], 0) end
+		return unpack(r, 2, r.n)
+	end
+
+	-- The mission's objective list, at the top right.
+	obsidian.hook("MissionManager", "draw_objective_list", function(original, self, gui, ...)
+		if not wide() then return original(self, gui, ...) end
+		return pinned({ gui }, "right", original, self, gui, ...)
+	end)
+
+	-- A character's dialogue box, set over the first player's card at the left: on the ship, in the
+	-- galaxy map's briefings and in missions. It draws on two guis, the HUD's own unless given.
+	obsidian.hook("Hud", "draw_dialogue", function(original, self, ...)
+		if not wide() then return original(self, ...) end
+		local args = { ... }
+		return pinned({ args[7] or self.hd_gui, args[8] or self.hd_gui_dialogue }, "left", original, self, ...)
+	end)
 end
 
 -- The mission end screens are sub-states of StateMissionEnd: change_state(self, sub) calls

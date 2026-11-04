@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## 1.10.0
+
+- Changed: **Widescreen fixes** also puts the mission's objective list in the top right corner of the screen and dialogue boxes (the ship's characters, briefings) at the left edge, instead of inside the 16:9 middle.
+
 ## 1.9.1
 
 - Changed: going online works again. 1.9.0 sent some of the game's network messages with one value too many, which ended the session after login and returned to the main menu, with Dynamic input switch on or off.

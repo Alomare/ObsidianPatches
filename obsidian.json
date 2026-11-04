@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.9.1",
+  "version": "1.10.0",
   "name": { "en": "Obsidian Patches", "pt-BR": "Obsidian Patches", "zh-CN": "Obsidian Patches", "fr": "Obsidian Patches", "es": "Obsidian Patches" },
   "description": {
     "en": "Small fixes for the game, each one an option. Five of them can also be changed in the pause menu, under Mods.",
@@ -19,7 +19,7 @@
   "options": [
     { "id": "widescreen", "type": "toggle", "default": true,
       "label": { "en": "Widescreen fixes", "pt-BR": "Correções para tela larga", "zh-CN": "宽屏修正", "fr": "Corrections grand écran", "es": "Arreglos de pantalla ancha" },
-      "description": { "en": "No black bars on screens wider than 16:9.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9.", "es": "Sin franjas negras en pantallas más anchas que 16:9." } },
+      "description": {"en": "No black bars on screens wider than 16:9, and the objective list and dialogue boxes in the real corners of the screen.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9, e a lista de objetivos e as caixas de diálogo nos cantos reais da tela.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边，任务目标列表和对话框显示在屏幕的实际角落。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9, et la liste des objectifs et les boîtes de dialogue dans les vrais coins de l'écran.", "es": "Sin franjas negras en pantallas más anchas que 16:9, y la lista de objetivos y los cuadros de diálogo en las esquinas reales de la pantalla."} },
     { "id": "expedite_mission_end", "type": "choice", "default": "faster",
       "choices": [
         { "id": "off", "label": { "en": "Off", "pt-BR": "Desligado", "zh-CN": "关闭", "fr": "Désactivé", "es": "Desactivado" } },
