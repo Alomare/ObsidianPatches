@@ -439,35 +439,35 @@ do
 	end)
 end
 
--- A sprint that ends on its own sends the animation event sprint_stop. A dive out of a sprint leaves
--- the sprint state with no such event, so after the dive the upper body still holds the sprint, and the
--- next sprint plays over it in a stuck pose until the player stops and sprints again. A dive that began
--- in a sprint gets the missing sprint_stop once the character is back on foot: the dive state, or the
--- crawl it can turn into, handing over to standing.
+-- The sprint state sends nothing to the upper-body (weapon) layer of the character's animation, so a
+-- sprint keeps whatever pose the state before it left there. Walking releases that layer as it starts
+-- (animation event no_animation), so a sprint out of a walk looks right. Standing still holds the idle
+-- pose there (idle_upper), and firing holds the hip-fire pose (aim_hip), so a sprint that starts
+-- straight from one of them runs with the upper body frozen in that pose, until a walk on the way
+-- releases it. Getting up from a dive, or from the crawl it turns into, hands over to standing, and with
+-- sprint and a direction still held the sprint starts on the next frame: the stuck pose after a dive.
+-- A sprint that starts from standing, firing or a weapon switch releases the layer the way a walk does.
+-- A reload releases it when the reload animation ends, and the map closes with an animation of its own,
+-- so those two are left alone. Only units this machine runs go through these states here.
 do
-	local from_sprint = setmetatable({}, { __mode = "k" })
+	local HELD = { "CharacterStateIdle", "CharacterStateFire", "CharacterStateWalkFire", "CharacterStateSwitchWeapon" }
 
-	obsidian.hook("CharacterStateDodge", "on_enter", function(original, self, ctx, previous, ...)
-		from_sprint[self] = on.dive_sprint_fix and previous ~= nil and previous == rawget(_G, "CharacterStateSprint") or nil
-		return original(self, ctx, previous, ...)
-	end)
-
-	local function stand_up(unit, after)
-		if not from_sprint[unit] or after == rawget(_G, "CharacterStateCrawl") then return end
-		from_sprint[unit] = nil
-		if after ~= nil and after == rawget(_G, "CharacterStateIdle") then
-			rawget(_G, "Unit").animation_event(unit, "sprint_stop")
+	local function release(unit, previous)
+		if not on.dive_sprint_fix or previous == nil then return end
+		for _, name in ipairs(HELD) do
+			if previous == rawget(_G, name) then
+				local units = rawget(_G, "Unit")
+				if units.has_animation_event(unit, "no_animation") then units.animation_event(unit, "no_animation") end
+				return
+			end
 		end
 	end
 
-	for _, name in ipairs({ "CharacterStateDodge", "CharacterStateCrawl" }) do
-		obsidian.hook(name, "on_exit", function(original, self, ctx, after, ...)
-			local r = { original(self, ctx, after, ...) }
-			local ok, err = pcall(stand_up, self, after)
-			if not ok then obsidian.log("dive sprint fix: " .. tostring(err)) end
-			return unpack(r)
-		end)
-	end
+	obsidian.hook("CharacterStateSprint", "on_enter", function(original, self, ctx, previous, ...)
+		local ok, err = pcall(release, self, previous)
+		if not ok then obsidian.log("sprint pose fix: " .. tostring(err)) end
+		return original(self, ctx, previous, ...)
+	end)
 end
 
 -- Every game state limits the viewport to GameSettings.max_aspect_ratio (16:9), which letterboxes
