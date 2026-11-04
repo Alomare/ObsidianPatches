@@ -793,9 +793,11 @@ do
 	end)
 
 	-- The game's join at a press waits for the hold.
-	obsidian.hook("NetworkRouter", "transmit_to", function(original, self, peer, message, pad, ...)
-		if on.dynamic_input and message == JOIN_RPC and not dyn.allowed[pad] then return end
-		return original(self, peer, message, pad, ...)
+	-- The arguments go on exactly as they came: an RPC is sent with as many values as it's given, and a
+	-- named one more would add a nil the session doesn't expect, which ends it.
+	obsidian.hook("NetworkRouter", "transmit_to", function(original, self, peer, message, ...)
+		if on.dynamic_input and message == JOIN_RPC and not dyn.allowed[(...)] then return end
+		return original(self, peer, message, ...)
 	end)
 
 	obsidian.hook("LocalizationManager", "string", function(original, self, key, ...)

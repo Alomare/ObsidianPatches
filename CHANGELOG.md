@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## 1.9.1
+
+- Changed: going online works again. 1.9.0 sent some of the game's network messages with one value too many, which ended the session after login and returned to the main menu, with Dynamic input switch on or off.
+
 ## 1.9.0
 
 - New: **Dynamic input switch**, off by default. With a keyboard and a gamepad connected, both control the first Helldiver and the button prompts follow the last one used; the gamepad joins as a second Helldiver only when its join button is held for 1.5 seconds, and the prompt reads HOLD instead of PRESS.
