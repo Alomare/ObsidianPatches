@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## 1.11.0
+
+- Removed: **Dynamic input switch**. Keyboard, mouse and gamepad together clashed in menus such as the galaxy map.
+
 ## 1.10.1
 
 - Changed: with **Dynamic input switch** on, logging in reaches the ship again. The join a gamepad's press asks for waited for the hold, and so did the request that adds the first player when a session starts, which left the ship without a Helldiver and returned to the main menu. Only the press waits now.

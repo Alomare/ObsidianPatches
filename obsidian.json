@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.10.1",
+  "version": "1.11.0",
   "name": { "en": "Obsidian Patches", "pt-BR": "Obsidian Patches", "zh-CN": "Obsidian Patches", "fr": "Obsidian Patches", "es": "Obsidian Patches" },
   "description": {
     "en": "Small fixes for the game, each one an option. Five of them can also be changed in the pause menu, under Mods.",
@@ -55,9 +55,6 @@
     { "id": "toggle_map", "type": "toggle", "default": false,
       "label": { "en": "Toggle minimap", "pt-BR": "Alternar minimapa", "zh-CN": "切换小地图", "fr": "Basculer la mini-carte", "es": "Alternar minimapa" },
       "description": { "en": "The map key opens the minimap and keeps it open until pressed again, instead of only while held.", "pt-BR": "A tecla do mapa abre o minimapa e o mantém aberto até ser pressionada de novo, em vez de só enquanto está pressionada.", "zh-CN": "地图键按一下打开小地图，再按一下才关闭，而不是只在按住时显示。", "fr": "La touche de la carte ouvre la mini-carte et la garde ouverte jusqu'au prochain appui, au lieu de seulement pendant qu'elle est maintenue.", "es": "La tecla del mapa abre el minimapa y lo mantiene abierto hasta volver a pulsarla, en vez de solo mientras se mantiene pulsada." } },
-    { "id": "dynamic_input", "type": "toggle", "default": false,
-      "label": {"en": "Dynamic input switch", "pt-BR": "Troca dinâmica de controle", "zh-CN": "动态输入切换", "fr": "Bascule dynamique des commandes", "es": "Cambio dinámico de control"},
-      "description": {"en": "With a keyboard and a gamepad connected, both control the first Helldiver, and the button prompts follow whichever was used last. The gamepad joins as a second Helldiver only when its join button is held for 1.5 seconds.", "pt-BR": "Com teclado e controle conectados, os dois comandam o primeiro Helldiver, e os ícones de botões seguem o último usado. O controle só entra como segundo Helldiver quando o botão de entrar fica pressionado por 1,5 segundo.", "zh-CN": "同时连接键盘和手柄时，两者都控制第一名地狱潜兵，按键提示跟随最后使用的设备。只有按住手柄的加入键 1.5 秒，手柄才会作为第二名地狱潜兵加入。", "fr": "Avec un clavier et une manette branchés, les deux dirigent le premier Helldiver, et les touches affichées suivent le dernier utilisé. La manette ne rejoint comme deuxième Helldiver que si son bouton pour rejoindre est maintenu 1,5 seconde.", "es": "Con teclado y mando conectados, los dos controlan al primer Helldiver, y los botones que se muestran siguen al último usado. El mando solo se une como segundo Helldiver si se mantiene su botón de unirse 1,5 segundos."} },
     { "id": "recoil_fix", "type": "toggle", "default": true,
       "label": { "en": "Weapon recoil animation fix", "pt-BR": "Correção da animação de recuo da arma", "zh-CN": "武器后坐力动画修正", "fr": "Correction de l'animation de recul de l'arme", "es": "Arreglo de la animación de retroceso del arma" },
       "description": { "en": "Brings back the recoil animation of the weapon in hand when a stratagem throw, or a weapon picked up from the ground, leaves it out.", "pt-BR": "Devolve a animação de recuo da arma na mão quando o lançamento de um estratagema, ou uma arma pega do chão, a tira.", "zh-CN": "投掷战略配备或从地上拾起武器后，若手中武器的后坐力动画消失，则将其恢复。", "fr": "Rétablit l'animation de recul de l'arme en main quand le lancer d'un stratagème, ou une arme ramassée au sol, la supprime.", "es": "Devuelve la animación de retroceso del arma en la mano cuando el lanzamiento de una estratagema, o un arma recogida del suelo, la quita." } },
