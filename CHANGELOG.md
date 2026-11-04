@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## 1.8.2
+
+- Changed: a new image beside the mod in Obsidian's mod list.
+
 ## 1.8.1
 
 - Changed: Sprint pose fix now frees the upper body when a sprint starts straight from standing, which is how a sprint starts after getting up from a dive, and after firing or a weapon switch too.
