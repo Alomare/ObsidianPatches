@@ -13,7 +13,7 @@ Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Five of them 
 | Dynamic solo pause | With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. | On | Yes |
 | Aim cursor always visible | On PC, the cursor keeps the aiming look at all times. | Off | Yes |
 | Toggle minimap | The map key opens the minimap and keeps it open until pressed again. | Off | Yes |
-| Weapon recoil animation fix | Brings back the recoil animation of the weapon in hand when a stratagem throw, or a weapon picked up from the ground, leaves it out. Covers the player, a second controller and bots run by this game. | On | |
+| Weapon recoil animation fix | Every weapon taken in hand plays the matching recoil animation, whatever was in hand before. Covers every Helldiver in the session. | On | |
 | Sprint pose fix | Sprinting right after getting up from a dive shows the normal running pose, instead of an upper body stuck until the sprint starts over. | On | |
 
 ## How to Use

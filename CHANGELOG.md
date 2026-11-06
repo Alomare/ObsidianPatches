@@ -5,6 +5,7 @@ New, changed or removed options, one line each, brief and direct. A release's se
 ## Next
 
 - Changed: **Skip war briefs** also hides the briefs the open galaxy map plays when the war moves, such as a sector changing hands or a defend event ending. The end of a war still plays, at login too.
+- Changed: **Weapon recoil animation fix** works after any weapon change, for every Helldiver in the session. A heavy support weapon, a revolver or plasma pistol shot, or a switch while aiming used to leave the next weapon with the recoil of another weapon, or none.
 
 ## 1.11.0
 

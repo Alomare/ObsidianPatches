@@ -369,86 +369,48 @@ do
 	end)
 end
 
--- A stratagem throw, or picking a weapon up from the ground, can leave the weapon layer of the
--- character's animation (entry 6 of the state the engine gives for the unit) in a pose of the throw or
--- the pickup, and the weapon then fires with no recoil. The weapon is wielded while that animation still
--- holds the layer, so the weapon's own setup of the layer is lost. The entry is kept when the stratagem
--- menu or an interaction opens, and once the character is back on foot for SETTLE frames:
--- - the same weapon in hand: an entry that still differs is put back;
--- - another weapon in hand, the one picked up: that weapon's own on_wielded flow event plays again,
---   which sets the layer up the way wielding it does.
--- A weapon switch on the way re-wields by itself, and drops the check. Only units this machine runs go
--- through these states here: the player's, a second controller's and bots.
+-- The recoil animations play on one layer of the Helldiver animation (entry 6 of the state the engine
+-- gives for the unit), grouped by weapon kind: two-handed weapons, pistols, machine guns, launchers and
+-- the saber. The on_wielded flow of a weapon taken in hand sends the event that moves the layer to the
+-- kind of that weapon, and some states have no way to some kinds, so the event is lost: the launchers
+-- (recoilless rifle, LAW, missile launcher, laser cannon, 20 mm cannon) have no way out at all, a
+-- revolver or plasma pistol shot leads only there, and an aimed pistol, machine gun or saber, or a pump
+-- or bolt shot still playing, misses some. The next weapon then plays the recoil of another kind, or
+-- none. Right before on_wielded plays, the layer goes back to where a Helldiver starts (state 3, the
+-- two-handed rest), from which the event of any kind lands. This runs on every machine for every
+-- Helldiver shown there: the player, a second controller, bots and the other players.
 do
-	local LAYER, SETTLE, GIVE_UP = 6, 20, 900
-	local ON_FOOT = { "CharacterStateIdle", "CharacterStateWalk", "CharacterStateAim", "CharacterStateAimWalk", "CharacterStateSprint" }
-	local FIRING = { "CharacterStateFire", "CharacterStateWalkFire", "CharacterStateAimFire", "CharacterStateAimWalkFire" }
-	local kept = setmetatable({}, { __mode = "k" })
+	local LAYER, START = 6, 3
 
-	local function is_one_of(state, names)
-		if state == nil then return false end
-		for _, name in ipairs(names) do
-			if state == rawget(_G, name) then return true end
-		end
-		return false
-	end
-
-	local function weapon_of(unit)
-		local inv = rawget(_G, "EntityAux").state(unit, "inventory")
-		return inv and inv.current_weapon
-	end
-
-	-- A pose kept while the weapon was firing would bring back a shot, so only a calm one counts.
-	local function keep(unit, previous)
-		if not on.recoil_fix or is_one_of(previous, FIRING) then return end
-		local pose = { rawget(_G, "Unit").animation_get_state(unit) }
-		if pose[LAYER] == nil then return end
-		kept[unit] = { weapon = weapon_of(unit), value = pose[LAYER], on_foot = 0, age = 0 }
-	end
-
-	for _, name in ipairs({ "CharacterStateStratagems", "CharacterStateInteract" }) do
-		obsidian.hook(name, "on_enter", function(original, self, ctx, previous, ...)
-			local ok, err = pcall(keep, self, previous)
-			if not ok then obsidian.log("recoil fix: " .. tostring(err)) end
-			return original(self, ctx, previous, ...)
-		end)
-	end
-
-	local function check(unit, k)
+	local function reset(unit)
 		local units = rawget(_G, "Unit")
-		k.age = k.age + 1
-		if not on.recoil_fix or not units.alive(unit) or k.age > GIVE_UP then return true end
-		local cs = rawget(_G, "EntityAux").state(unit, "character")
-		local state = cs and cs.current_state
-		if state ~= nil and state == rawget(_G, "CharacterStateSwitchWeapon") then return true end
-		local weapon = weapon_of(unit)
-		if weapon == nil then return true end
-		if weapon ~= k.weapon then
-			k.weapon, k.picked_up, k.on_foot = weapon, true, 0
-		end
-		k.on_foot = is_one_of(state, ON_FOOT) and k.on_foot + 1 or 0
-		if k.on_foot < SETTLE then return false end
-		if k.picked_up then
-			units.flow_event(weapon, "on_wielded")
-			obsidian.log("recoil fix: weapon set up again after a pickup")
-			return true
-		end
 		local pose = { units.animation_get_state(unit) }
-		if pose[LAYER] ~= nil and pose[LAYER] ~= k.value then
-			pose[LAYER] = k.value
-			units.animation_set_state(unit, unpack(pose))
-			obsidian.log("recoil fix: weapon pose put back")
-		end
-		return true
+		local from = pose[LAYER]
+		if type(from) ~= "number" or from == START then return end
+		pose[LAYER] = START
+		units.animation_set_state(unit, unpack(pose))
+		obsidian.log("recoil fix: weapon layer back from state " .. from .. " for the weapon taken in hand")
 	end
 
-	obsidian.on_frame(function()
-		if next(kept) == nil then return end
-		for unit, k in pairs(kept) do
-			local ok, done = pcall(check, unit, k)
-			if not ok then obsidian.log("recoil fix: " .. tostring(done)) end
-			if not ok or done then kept[unit] = nil end
+	-- EquipmentComponent.update_slaves plays on_wielded for each weapon whose wielded flag turned on,
+	-- on every machine.
+	local function prepare(slaves)
+		local units, aux = rawget(_G, "Unit"), rawget(_G, "EntityAux")
+		for _, ctx in pairs(slaves) do
+			local s = type(ctx) == "table" and ctx.state
+			if type(s) == "table" and s.wielded and s.wielded ~= s.was_wielded then
+				local unit = s.wielder
+				if unit and units.alive(unit) and aux.has_component(unit, "character") then reset(unit) end
+			end
 		end
+	end
+
+	obsidian.hook("EquipmentComponent", "update_slaves", function(original, self, slaves, ...)
+		if on.recoil_fix and type(slaves) == "table" then
+			local ok, err = pcall(prepare, slaves)
+			if not ok then obsidian.log("recoil fix: " .. tostring(err)) end
+		end
+		return original(self, slaves, ...)
 	end)
 end
 
