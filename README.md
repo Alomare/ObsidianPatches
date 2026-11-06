@@ -1,6 +1,6 @@
 # Obsidian Patches
 
-Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Five of them can also be changed in game, in the pause menu under **Mods → Obsidian Patches**, and a change there goes back to Obsidian. As a client mod, it changes only the game it runs in, and it needs Obsidian API, which turns on with it.
+Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Four of them can also be changed in game, in the pause menu under **Mods → Obsidian Patches**, and a change there goes back to Obsidian. As a client mod, it changes only the game it runs in, and it needs Obsidian API, which turns on with it.
 
 | Option | What it does | Starts | In the pause menu |
 |---|---|---|---|

@@ -4,11 +4,11 @@
   "version": "1.11.0",
   "name": { "en": "Obsidian Patches", "pt-BR": "Obsidian Patches", "zh-CN": "Obsidian Patches", "fr": "Obsidian Patches", "es": "Obsidian Patches" },
   "description": {
-    "en": "Small fixes for the game, each one an option. Five of them can also be changed in the pause menu, under Mods.",
-    "pt-BR": "Pequenas correções para o jogo, cada uma uma opção. Cinco delas também podem ser mudadas no menu de pausa, em Mods.",
-    "zh-CN": "游戏的小修正，每一项都是一个选项。其中五项也可在暂停菜单的 Mods 中更改。",
-    "fr": "Petites corrections pour le jeu, chacune en option. Cinq d'entre elles se règlent aussi dans le menu pause, sous Mods.",
-    "es": "Pequeños arreglos para el juego, cada uno una opción. Cinco de ellos también se cambian en el menú de pausa, en Mods."
+    "en": "Small fixes for the game, each one an option. Four of them can also be changed in the pause menu, under Mods.",
+    "pt-BR": "Pequenas correções para o jogo, cada uma uma opção. Quatro delas também podem ser mudadas no menu de pausa, em Mods.",
+    "zh-CN": "游戏的小修正，每一项都是一个选项。其中四项也可在暂停菜单的 Mods 中更改。",
+    "fr": "Petites corrections pour le jeu, chacune en option. Quatre d'entre elles se règlent aussi dans le menu pause, sous Mods.",
+    "es": "Pequeños arreglos para el juego, cada uno una opción. Cuatro de ellos también se cambian en el menú de pausa, en Mods."
   },
   "authors": ["Obsidian"],
   "image": "image.jpg",
