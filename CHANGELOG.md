@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## Next
+
+- Changed: **Skip war briefs** also hides the briefs the open galaxy map plays when the war moves, such as a sector changing hands or a defend event ending. The end of a war still plays, at login too.
+
 ## 1.11.0
 
 - Removed: **Dynamic input switch**. Keyboard, mouse and gamepad together clashed in menus such as the galaxy map.

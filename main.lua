@@ -146,40 +146,53 @@ if on.skip_login then
 	end)
 end
 
--- The war brief after a long absence is the campaign recap, opened by show_recap when the ship
--- loads. The war-end sequence (state_season_end) writes the save and is left alone.
--- The galaxy map also plays a shorter brief each time it opens after the war has moved: what changed
--- since the last brief, or the snapshots since the last login. The recap screen still runs its own
--- entry, which records the war as seen, and then leaves at once. A recap the player asks for, and the
--- war's end, which goes on to the season end and its save, are left to play.
+-- Every war brief is the galaxy map's recap screen, and the game opens it by itself in three places:
+-- - the ship after login (StateMenu, show_recap): the war since the last brief;
+-- - each opening of the galaxy map (MenuScreenCampaign.on_enter): what changed since the last brief;
+-- - an open galaxy map whenever the war moves: a sector or planet changing hands, a defend or attack
+--   event starting or ending (MenuScreenCampaign.update calls go_to_recap). No screen has a button for
+--   it, so go_to_recap is never the player asking.
+-- The recap screen still runs the game's entry, which records the war as seen, and then leaves at once.
+-- Two are left to play: the war's end, which goes on to the season end and the save of that season (a
+-- war seen last in an earlier season, or the season end on the ship), and the recap of the game's debug
+-- menu (debug_recap).
 do
+	-- The recap screen's own test for a war that ended since the last brief.
+	local function war_ended_since_seen()
+		local seen = rawget(_G, "SaveManager"):get("last_shown_recap_status")
+		local season = type(seen) == "table" and type(seen[1]) == "table" and seen[1].season
+		local now = rawget(_G, "CampaignManager"):get_current_season()
+		return type(season) == "number" and season ~= 0 and now ~= nil and season ~= now
+	end
+
 	obsidian.hook("StateMenu", "on_enter", function(original, self, params, ...)
 		if on.skip_war_briefs and type(params) == "table" and params.show_recap then
-			params.show_recap = false
-			obsidian.log("skip war briefs: recap skipped")
+			local ok, ended = pcall(war_ended_since_seen)
+			if ok and ended then
+				obsidian.log("skip war briefs: the war's end is left to play")
+			else
+				params.show_recap = false
+				obsidian.log("skip war briefs: recap skipped")
+			end
 		end
 		return original(self, params, ...)
 	end)
 
-	local asked, waiting = false, nil
+	local waiting = nil
 	local function keeps(self)
 		local p = type(self.params) == "table" and self.params or {}
 		return self.season_end_params ~= nil or p.season_end or p.debug_recap
 	end
-	obsidian.hook("MenuScreenCampaign", "go_to_recap", function(original, self, ...)
-		asked = true
-		return original(self, ...)
-	end)
 	obsidian.hook("MenuScreenCampaignRecap", "on_enter", function(original, self, ...)
-		local by_player = asked
-		asked, waiting = false, nil
+		waiting = nil
 		local r = { original(self, ...) }
-		if on.skip_war_briefs and not by_player and not keeps(self) and not self.wants_exit then
+		if on.skip_war_briefs and not keeps(self) and not self.wants_exit then
 			if #(self.snapshots or {}) > 0 then
 				self.wants_exit = true
 				obsidian.log("skip war briefs: brief skipped")
 			else
-				-- The snapshots come from the backend: whether there's a war end to show is known then.
+				-- The snapshots come later from the backend, and that answer starts the recap, or closes the
+				-- map, even on a screen already left: the screen leaves once the answer is in.
 				waiting = self
 			end
 		end

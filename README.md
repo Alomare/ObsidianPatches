@@ -8,7 +8,7 @@ Small fixes for HELLDIVERS (2015), each one an option in Obsidian. Five of them 
 | Expedite mission end | Faster gives each results screen about a second, and Instant goes straight to the last screen. Rewards are saved either way. | Faster | Yes |
 | Skip intro | No logos or intro video at launch. | On | |
 | Skip login screen | Starts on the ship, still online, with keyboard and mouse as the player 1 controls. | On | |
-| Skip war briefs | Hides the war recap shown at login after a long absence. | Off | |
+| Skip war briefs | Hides the war briefs at login and on the galaxy map, including the updates shown as the war moves. The end of a war still plays. | Off | |
 | Skip planet scanning | No planet discovery animation after a liberation or a new sector. | On | |
 | Dynamic solo pause | With a single player in the mission, the pause menu freezes the game, even in a public or friends-only lobby. | On | Yes |
 | Aim cursor always visible | On PC, the cursor keeps the aiming look at all times. | Off | Yes |
