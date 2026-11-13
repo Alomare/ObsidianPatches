@@ -11,7 +11,7 @@
     "es": "Pequeños arreglos para el juego, cada uno una opción. Cuatro de ellos también se cambian en el menú de pausa, en Mods."
   },
   "authors": ["Obsidian"],
-  "image": "image.jpg",
+  "image": "icon.jpg",
   "scope": "client",
   "requires": ["obsidian.api"],
   "entry": "main.lua",
