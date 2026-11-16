@@ -2,7 +2,7 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
-## Next
+## 1.12.0
 
 - New: the name, description and options in Russian.
 
