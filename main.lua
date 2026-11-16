@@ -623,6 +623,27 @@ do
 		end
 	end
 
+	-- Done draws the planet completed title, stamp included, at a screen point that only the skipped
+	-- MissionEndStatePlanetCompleted (or ProvinggroundsCompleted) on_enter sets; without it the
+	-- title's Vector3Aux.unbox reads nil and the game crashes. The point is worked out the same way,
+	-- with no planet spawned, and the middle of the screen stands in if that fails.
+	local function stamp_point(self)
+		if self.planet_completed_unit_screen_position ~= nil then return end
+		local V3, V3A = rawget(_G, "Vector3"), rawget(_G, "Vector3Aux")
+		local ok = pcall(function()
+			local cam = rawget(_G, "CampaignSettings").camera.mission_end
+			local from = V3(unpack(cam.position))
+			local at = from + V3.normalize(V3(unpack(cam.target)) - from) * 5 - V3(0, 0, 0.25)
+			local p = self.world_proxy:viewport("menu_viewport"):world_to_viewport(at)
+			local sx, sy = self.gui_manager:get_scale()
+			self.planet_completed_unit_screen_position = V3A.box({}, V3(p.x / sx, p.z / sy, 0))
+		end)
+		if not ok then
+			local w, h = rawget(_G, "Application").resolution()
+			self.planet_completed_unit_screen_position = V3A.box({}, V3(w / 2, h / 2, 0))
+		end
+	end
+
 	obsidian.hook("StateMissionEnd", "change_state", function(original, self, sub, ...)
 		local expedite = on.expedite_mission_end
 		if expedite ~= "faster" and expedite ~= "instant" then return original(self, sub, ...) end
@@ -631,6 +652,7 @@ do
 			sub = done
 			obsidian.log("expedite mission end: results skipped")
 		end
+		if expedite == "instant" and done and sub == done then pcall(stamp_point, self) end
 		local steps = self.sub_state_states
 		local r = { original(self, sub, ...) }
 		phase.elapsed, phase.pressed, phase.speed = 0, false, 2
