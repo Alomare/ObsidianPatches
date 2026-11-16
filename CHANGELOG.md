@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## Next
+
+- Changed: Expedite mission end on Instant no longer crashes the game at the end of a mission that completes a planet.
+
 ## 1.12.0
 
 - New: the name, description and options in Russian.
