@@ -2,6 +2,10 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## Next
+
+- New: the name, description and options in Russian.
+
 ## 1.11.1
 
 - Changed: **Skip war briefs** also hides the briefs the open galaxy map plays when the war moves, such as a sector changing hands or a defend event ending. The end of a war still plays, at login too.
