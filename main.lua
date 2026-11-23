@@ -1,6 +1,6 @@
 -- Obsidian Patches: small fixes for the game, each one an option in Obsidian. The four that change how
 -- the game plays are also on the pause menu's Mods page (Obsidian API 1.16 and newer), bound to the same
--- options: a change there applies at once and reaches Obsidian's mod details. The other eight, fixes
+-- options: a change there applies at once and reaches Obsidian's mod details. The other nine, fixes
 -- for the game's own faults and screens to skip, are read at launch. Every
 -- hook is always installed and checks its option each time, so a change from the page needs no restart.
 local has_api, api = pcall(function() return obsidian.import("obsidian.api") end)
@@ -9,7 +9,7 @@ if not has_api then api = nil end
 local on = {
 	skip_intro = false, skip_login = false, skip_war_briefs = false, skip_planet_scanning = false,
 	expedite_mission_end = "off", solo_pause = true, aim_cursor = false, toggle_map = false, widescreen = true,
-	recoil_fix = true, dive_sprint_fix = true, rumbler_echo_fix = true,
+	recoil_fix = true, dive_sprint_fix = true, rumbler_echo_fix = true, borderless_fix = true,
 }
 for id in pairs(on) do
 	local ok, v = pcall(obsidian.settings.get, id)
@@ -469,6 +469,99 @@ do
 			if not ok then obsidian.log("recoil fix: " .. tostring(err)) end
 		end
 		return original(self, slaves, ...)
+	end)
+end
+
+-- In borderless fullscreen the engine's window keeps WS_BORDER: a thin light line on every side, the
+-- window one pixel past the screen on the left and the picture two pixels short of it (seen in game,
+-- 2026-11-23: style 94880000, window -1,0 and 2754 x 1152 on a 2752 x 1152 monitor, client 2752 x
+-- 1150). With the style cleared and the window fitted to its monitor, the engine takes the whole
+-- screen as its picture at once. Through LuaJIT's FFI and user32, on the game's own window only (the
+-- one in front, of this process), checked about once a second while the borderless setting is on.
+-- Each FFI declaration goes in alone, with structures as void pointers: another mod may have declared
+-- the same function with its own structure type first.
+do
+	local WS_BORDER, SWP_FLAGS = 0x00800000, 0x0020 + 0x0004 + 0x0010 -- FRAMECHANGED, NOZORDER, NOACTIVATE
+	local win = nil -- false when FFI or user32 can't be had
+	local function load()
+		if win ~= nil then return win end
+		win = false
+		pcall(function()
+			local ok, ffi = pcall(require, "ffi")
+			if not (ok and type(ffi) == "table") then ffi = package and package.loaded and package.loaded.ffi end
+			if type(ffi) ~= "table" or ffi.os ~= "Windows" then return end
+			local bit = rawget(_G, "bit") or require("bit")
+			for _, decl in ipairs({
+				"typedef struct { long left, top, right, bottom; } QOL_RECT;",
+				"typedef struct { unsigned long cbSize; QOL_RECT rcMonitor; QOL_RECT rcWork; unsigned long dwFlags; } QOL_MONITORINFO;",
+				"void *GetForegroundWindow(void);",
+				"unsigned long GetWindowThreadProcessId(void *w, unsigned long *pid);",
+				"unsigned long GetCurrentProcessId(void);",
+				"long GetWindowLongW(void *w, int index);",
+				"long SetWindowLongW(void *w, int index, long value);",
+				"void *MonitorFromWindow(void *w, unsigned long flags);",
+				"int GetMonitorInfoW(void *m, void *mi);",
+				"int SetWindowPos(void *w, void *after, int x, int y, int cx, int cy, unsigned int flags);",
+			}) do pcall(ffi.cdef, decl) end
+			win = { ffi = ffi, bit = bit, user32 = ffi.load("user32"), pid = ffi.new("unsigned long[1]"), hwnd = nil }
+		end)
+		return win
+	end
+
+	-- The game's window: the one in front, of this process, kept once found.
+	local function game_window(w)
+		if w.hwnd ~= nil then return w.hwnd end
+		local front = w.user32.GetForegroundWindow()
+		if front == nil then return nil end
+		w.user32.GetWindowThreadProcessId(front, w.pid)
+		if w.pid[0] ~= w.ffi.C.GetCurrentProcessId() then return nil end
+		w.hwnd = front
+		return front
+	end
+
+	local function borderless()
+		local app, window = rawget(_G, "Application"), rawget(_G, "Window")
+		if not (app and app.user_setting) then return false end
+		local ok, on = pcall(app.user_setting, "borderless_fullscreen")
+		if not (ok and on) then return false end
+		if window and window.is_fullscreen then
+			local got, full = pcall(window.is_fullscreen)
+			if got and full then return false end
+		end
+		return true
+	end
+
+	local function fix()
+		local w = load()
+		if not w then return end
+		local hwnd = game_window(w)
+		if hwnd == nil then return end
+		local style = w.user32.GetWindowLongW(hwnd, -16)
+		-- No style at all: the window is gone (the game made a new one); find it again next time.
+		if style == 0 then w.hwnd = nil return end
+		if w.bit.band(style, WS_BORDER) == 0 then return end
+		w.user32.SetWindowLongW(hwnd, -16, w.bit.band(style, w.bit.bnot(WS_BORDER)))
+		local mi = w.ffi.new("QOL_MONITORINFO")
+		mi.cbSize = w.ffi.sizeof(mi)
+		if w.user32.GetMonitorInfoW(w.user32.MonitorFromWindow(hwnd, 2), w.ffi.cast("void *", mi)) == 0 then return end
+		local m = mi.rcMonitor
+		w.user32.SetWindowPos(hwnd, nil, m.left, m.top, m.right - m.left, m.bottom - m.top, SWP_FLAGS)
+		obsidian.log(string.format("borderless fix: frame taken off the window, now %dx%d", m.right - m.left, m.bottom - m.top))
+	end
+
+	local wait = 0
+	obsidian.on_frame(function()
+		if not on.borderless_fix then return end
+		wait = wait - 1
+		if wait > 0 then return end
+		wait = 60
+		if borderless() then
+			local ok, err = pcall(fix)
+			if not ok then
+				obsidian.log("borderless fix: " .. tostring(err))
+				on.borderless_fix = false
+			end
+		end
 	end)
 end
 

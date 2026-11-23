@@ -5,6 +5,7 @@ New, changed or removed options, one line each, brief and direct. A release's se
 ## Next
 
 - New: **Rumbler echo fix**, on by default. A Rumbler burst no longer plays a second firing sound and flash, with no shell, about a second after the burst.
+- New: **Borderless fullscreen fix**, on by default. In borderless fullscreen, the thin light line around the screen goes, and the picture fills the whole screen.
 - Changed: **Widescreen fixes** puts the objective list halfway between the game's place and the right edge, so long objectives are no longer cut off.
 
 ## 1.13.0
