@@ -1,7 +1,7 @@
 {
   "obsidian": 1,
   "id": "obsidian.qol",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "name": { "en": "Obsidian Patches", "pt-BR": "Obsidian Patches", "zh-CN": "Obsidian Patches", "fr": "Obsidian Patches", "es": "Obsidian Patches", "ru": "Obsidian Patches" },
   "description": {
     "en": "Small fixes and conveniences for the game.",
@@ -19,7 +19,7 @@
   "options": [
     { "id": "widescreen", "type": "toggle", "default": true,
       "label": { "en": "Widescreen fixes", "pt-BR": "Correções para tela larga", "zh-CN": "宽屏修正", "fr": "Corrections grand écran", "es": "Arreglos de pantalla ancha", "ru": "Исправления для широких экранов" },
-      "description": {"en": "No black bars on screens wider than 16:9, dialogue boxes and galaxy map panels at the real edges of the screen, and the objective list halfway out toward the right edge.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9, e a lista de objetivos, as caixas de diálogo e os painéis do mapa galáctico nas bordas reais da tela.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边，任务目标列表、对话框和星系地图面板显示在屏幕的实际边缘。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9, et la liste des objectifs, les boîtes de dialogue et les panneaux de la carte galactique aux vrais bords de l'écran.", "es": "Sin franjas negras en pantallas más anchas que 16:9, y la lista de objetivos, los cuadros de diálogo y los paneles del mapa galáctico en los bordes reales de la pantalla.", "ru": "Без чёрных полос на экранах шире 16:9, а список целей, окна диалогов и панели карты галактики находятся у настоящих краёв экрана."} },
+      "description": {"en": "No black bars on screens wider than 16:9, dialogue boxes and galaxy map panels at the real edges of the screen, and the objective list halfway out toward the right edge.", "pt-BR": "Sem barras pretas em telas mais largas que 16:9, caixas de diálogo e painéis do mapa galáctico nas bordas reais da tela, e a lista de objetivos no meio do caminho até a borda direita.", "zh-CN": "在宽于 16:9 的屏幕上不显示黑边，对话框和银河地图面板位于屏幕真正的边缘，任务目标列表移到中间与右边缘之间的位置。", "fr": "Pas de bandes noires sur les écrans plus larges que 16:9, les boîtes de dialogue et les panneaux de la carte galactique aux vrais bords de l'écran, et la liste des objectifs à mi-chemin du bord droit.", "es": "Sin barras negras en pantallas más anchas que 16:9, los cuadros de diálogo y los paneles del mapa galáctico en los bordes reales de la pantalla, y la lista de objetivos a medio camino del borde derecho.", "ru": "Без чёрных полос на экранах шире 16:9, окна диалогов и панели галактической карты у настоящих краёв экрана, а список целей на полпути к правому краю."} },
     { "id": "expedite_mission_end", "type": "choice", "default": "faster",
       "choices": [
         { "id": "off", "label": { "en": "Off", "pt-BR": "Desligado", "zh-CN": "关闭", "fr": "Désactivé", "es": "Desactivado", "ru": "Выкл." } },
@@ -62,10 +62,10 @@
       "label": { "en": "Sprint pose fix", "pt-BR": "Correção da pose de corrida", "zh-CN": "冲刺姿势修正", "fr": "Correction de la posture de sprint", "es": "Arreglo de la postura de sprint", "ru": "Исправление позы спринта" },
       "description": { "en": "Sprinting right after getting up from a dive shows the normal running pose, instead of an upper body stuck until the sprint starts over.", "pt-BR": "Correr logo depois de levantar de um mergulho mostra a pose normal de corrida, em vez do tronco travado até a corrida recomeçar.", "zh-CN": "扑倒起身后立即冲刺时显示正常的奔跑姿势，而不是上半身卡住、直到重新冲刺才恢复。", "fr": "Sprinter juste après s'être relevé d'un plongeon montre la posture de course normale, au lieu d'un buste figé jusqu'à la reprise du sprint.", "es": "Esprintar justo después de levantarse de un salto muestra la postura normal de carrera, en vez del torso atascado hasta volver a esprintar.", "ru": "Спринт сразу после того, как игрок встал из прыжка, показывает обычную позу бега, а не застывший торс до нового начала спринта." } },
     { "id": "rumbler_echo_fix", "type": "toggle", "default": true,
-      "label": { "en": "Rumbler echo fix" },
-      "description": { "en": "A Rumbler burst plays the firing sound and flash once, without a second shot with no shell about a second later." } },
+      "label": { "en": "Rumbler echo fix", "pt-BR": "Correção do eco do Rumbler", "zh-CN": "Rumbler 回声修正", "fr": "Correction de l'écho du Rumbler", "es": "Arreglo del eco del Rumbler", "ru": "Исправление эха Rumbler" },
+      "description": { "en": "A Rumbler burst plays the firing sound and flash once, without a second shot with no shell about a second later.", "pt-BR": "Uma rajada do Rumbler toca o som e o clarão do disparo uma vez, sem um segundo disparo sem projétil cerca de um segundo depois.", "zh-CN": "Rumbler 的一轮齐射只播放一次开火声音和闪光，大约一秒后不再出现没有炮弹的第二次射击。", "fr": "Une salve du Rumbler joue le son et l'éclair de tir une seule fois, sans second tir sans obus environ une seconde plus tard.", "es": "Una ráfaga del Rumbler reproduce el sonido y el destello del disparo una sola vez, sin un segundo disparo sin proyectil alrededor de un segundo después.", "ru": "Залп Rumbler проигрывает звук и вспышку выстрела один раз, без второго выстрела без снаряда примерно через секунду." } },
     { "id": "borderless_fix", "type": "toggle", "default": true,
-      "label": { "en": "Borderless fullscreen fix" },
-      "description": { "en": "In borderless fullscreen, the thin light line around the screen goes, and the picture fills the whole screen." } }
+      "label": { "en": "Borderless white frame fix", "pt-BR": "Correção da moldura branca sem bordas", "zh-CN": "无边框白框修正", "fr": "Correction du cadre blanc en plein écran fenêtré", "es": "Arreglo del marco blanco sin bordes", "ru": "Исправление белой рамки в режиме без рамки" },
+      "description": { "en": "In borderless fullscreen, the thin white line around the screen goes, and the picture fills the whole screen.", "pt-BR": "Em tela cheia sem bordas, a fina linha branca em volta da tela some, e a imagem preenche a tela inteira.", "zh-CN": "在无边框全屏模式下，屏幕四周的细白线消失，画面填满整个屏幕。", "fr": "En plein écran fenêtré, la fine ligne blanche autour de l'écran disparaît et l'image remplit tout l'écran.", "es": "En pantalla completa sin bordes, la fina línea blanca alrededor de la pantalla desaparece y la imagen ocupa toda la pantalla.", "ru": "В полноэкранном режиме без рамки тонкая белая линия по краям экрана исчезает, а изображение заполняет весь экран." } }
   ]
 }
