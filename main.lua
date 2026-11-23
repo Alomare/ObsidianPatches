@@ -1,6 +1,6 @@
 -- Obsidian Patches: small fixes for the game, each one an option in Obsidian. The four that change how
 -- the game plays are also on the pause menu's Mods page (Obsidian API 1.16 and newer), bound to the same
--- options: a change there applies at once and reaches Obsidian's mod details. The other seven, fixes
+-- options: a change there applies at once and reaches Obsidian's mod details. The other eight, fixes
 -- for the game's own faults and screens to skip, are read at launch. Every
 -- hook is always installed and checks its option each time, so a change from the page needs no restart.
 local has_api, api = pcall(function() return obsidian.import("obsidian.api") end)
@@ -9,7 +9,7 @@ if not has_api then api = nil end
 local on = {
 	skip_intro = false, skip_login = false, skip_war_briefs = false, skip_planet_scanning = false,
 	expedite_mission_end = "off", solo_pause = true, aim_cursor = false, toggle_map = false, widescreen = true,
-	recoil_fix = true, dive_sprint_fix = true,
+	recoil_fix = true, dive_sprint_fix = true, rumbler_echo_fix = true,
 }
 for id in pairs(on) do
 	local ok, v = pcall(obsidian.settings.get, id)
@@ -472,6 +472,27 @@ do
 	end)
 end
 
+-- The Rumbler fires a burst of shells 0.1 s apart, and each shell sends the weapon "firing_single"
+-- (LauncherComponent.do_fire, fire_on_release). On every machine that command plays the firing sound
+-- and flash once the weapon's round delay has passed (update_slaves: firing_single waits for
+-- fire_timer < 0, then adds round_delay, 1 s at the Rumbler's 60 rounds a minute). The first shell
+-- plays at once; the second waits out that second and plays then, a shot with no shell; the third
+-- falls into the same wait. Commands that come within ECHO_WINDOW of the last one played are dropped:
+-- a new burst comes no sooner than the shortest charge after the last shell of the one before.
+do
+	local ECHO_WINDOW = 0.5
+	local clock, last = 0, setmetatable({}, { __mode = "k" })
+	obsidian.on_frame(function() clock = clock + (rawget(_G, "ENGINE_DT") or 0.016) end)
+	obsidian.hook("LauncherComponent", "command_slave", function(original, self, unit, ctx, message, ...)
+		if on.rumbler_echo_fix and message == "firing_single" and unit ~= nil then
+			local t = last[unit]
+			if t and clock - t < ECHO_WINDOW then return end
+			last[unit] = clock
+		end
+		return original(self, unit, ctx, message, ...)
+	end)
+end
+
 -- The sprint state sends nothing to the upper-body (weapon) layer of the character's animation, so a
 -- sprint keeps whatever pose the state before it left there. Walking releases that layer as it starts
 -- (animation event no_animation), so a sprint out of a walk looks right. Standing still holds the idle
@@ -534,7 +555,8 @@ do
 	-- The HUD lays out a 1280x720 screen and centres it (HdGui.update_offsets), so on a wider screen
 	-- an element meant for a corner stands inside the 16:9 middle. The position HdGui draws at adds
 	-- resolution_offset_x each time (HdGui.calculate_pos): while such an element draws, the offset
-	-- is doubled to reach the right edge, or zeroed for the left one, then put back.
+	-- is doubled to reach the right edge, or zeroed for the left one, then put back. "between" takes
+	-- it one and a half times: halfway from the game's place to the right edge.
 	local function wide()
 		local app = rawget(_G, "Application")
 		local ok, w, h = pcall(app.resolution)
@@ -546,7 +568,8 @@ do
 		for i, gui in ipairs(guis) do
 			if type(gui) == "table" and type(gui.resolution_offset_x) == "number" then
 				kept[i] = gui.resolution_offset_x
-				gui.resolution_offset_x = side == "right" and gui.resolution_offset_x * 2 or 0
+				local k = side == "right" and 2 or side == "between" and 1.5 or 0
+				gui.resolution_offset_x = gui.resolution_offset_x * k
 			end
 		end
 		local function pack(...) return { n = select("#", ...), ... } end
@@ -558,10 +581,11 @@ do
 		return unpack(r, 2, r.n)
 	end
 
-	-- The mission's objective list, at the top right.
+	-- The mission's objective list, halfway between the game's place and the top right corner: at the
+	-- edge, its longer lines ran off the screen, ultrawide too (1.13.0 and before).
 	obsidian.hook("MissionManager", "draw_objective_list", function(original, self, gui, ...)
 		if not wide() then return original(self, gui, ...) end
-		return pinned({ gui }, "right", original, self, gui, ...)
+		return pinned({ gui }, "between", original, self, gui, ...)
 	end)
 
 	-- The galaxy map's menus draw with GuiManager, which centres the 1280x720 layout by adding

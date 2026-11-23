@@ -2,6 +2,11 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## Next
+
+- New: **Rumbler echo fix**, on by default. A Rumbler burst no longer plays a second firing sound and flash, with no shell, about a second after the burst.
+- Changed: **Widescreen fixes** puts the objective list halfway between the game's place and the right edge, so long objectives are no longer cut off.
+
 ## 1.13.0
 
 - Changed: **Skip login screen** starts off. With a gamepad connected, the first press on the title screen picks the player 1 controls; with keyboard and mouse alone, the login still needs no press.
