@@ -94,17 +94,35 @@ if on.skip_intro then
 end
 
 -- Two steps, the first visit to the main menu only, so quitting to the main menu works:
--- 1. The login click: the menu's own handle_input gets select from keyboard and mouse every frame
---    until the menu takes the input (showing_menu), so the game's own checks (logo done, fades)
---    still decide when. That also makes keyboard and mouse the main pad, as a click would.
+-- 1. The login press: the device that presses select on the title screen becomes the player 1
+--    controls (set_main_pad_number). With keyboard and mouse the only input, the menu's own
+--    handle_input gets select from them every frame until the menu takes the input (showing_menu),
+--    so the game's own checks (logo done, fades) still decide when. With a gamepad connected, the
+--    press is left to the player, so a gamepad player keeps the gamepad as player 1.
 -- 2. At the login step, the steps the menu takes for a Steam invite: ask for the ship with the
 --    Steam backend. The menu finishes the online setup (backend, campaign) before it leaves.
 -- ARGUMENTS.autohost would skip both but picks the LAN backend, which stays offline.
 if on.skip_login then
 	local clicked, done = false, false
+	-- Whether a gamepad is among the game's active inputs (nil when that can't be read).
+	local function gamepad(kbm)
+		local util = rawget(_G, "InputUtility")
+		if type(util) ~= "table" or type(util.get_active_inputs) ~= "function" then return nil end
+		local ok, inputs = pcall(util.get_active_inputs)
+		if not ok or type(inputs) ~= "table" then return nil end
+		for _, input in ipairs(inputs) do
+			if type(input) == "table" and input.pad_number ~= nil and input.pad_number ~= kbm then return true end
+		end
+		return false
+	end
 	local function click(self)
 		local pad = rawget(_G, "KEYBOARD_MOUSE_PAD_NUMBER")
 		if pad == nil or type(self.handle_input) ~= "function" then return end
+		if gamepad(pad) then
+			clicked = true
+			obsidian.log("skip login: a gamepad is connected, the first press picks the player 1 controls")
+			return
+		end
 		local input = { select = true }
 		local ok, err = pcall(self.handle_input, self, input, { { pad_number = pad, input_data = input } })
 		if not ok then
@@ -146,7 +164,7 @@ if on.skip_login then
 	end)
 end
 
--- Every war brief is the galaxy map's recap screen, and the game opens it by itself in three places:
+-- Most war briefs are the galaxy map's recap screen, and the game opens it by itself in three places:
 -- - the ship after login (StateMenu, show_recap): the war since the last brief;
 -- - each opening of the galaxy map (MenuScreenCampaign.on_enter): what changed since the last brief;
 -- - an open galaxy map whenever the war moves: a sector or planet changing hands, a defend or attack
@@ -206,6 +224,46 @@ do
 				self.wants_exit = true
 				obsidian.log("skip war briefs: brief skipped after the snapshots")
 			end
+		end
+		return unpack(r)
+	end)
+
+	-- The ship has briefs of its own, outside the galaxy map:
+	-- - the title of an event that ended, over the ship (GalacticEventManager.add_ended_event), such as
+	--   ENEMY HOMEWORLD LIBERATED after an attack event: it is never added;
+	-- - the ship's announcement of each war event (StateMenu.on_campaign_event queues a level flow): a
+	--   sector won or lost, a defend or attack event starting or ending, an enemy beaten. The line on
+	--   the news ticker stays, and so does the war's end (on_campaign_won, on_campaign_lost).
+	obsidian.hook("GalacticEventManager", "add_ended_event", function(original, self, event, ...)
+		if on.skip_war_briefs then
+			obsidian.log("skip war briefs: event title skipped")
+			return
+		end
+		return original(self, event, ...)
+	end)
+	local WAR_END = { on_campaign_won = true, on_campaign_lost = true }
+	obsidian.hook("StateMenu", "on_campaign_event", function(original, self, event, ...)
+		local queue = self.queued_level_events
+		local r = { original(self, event, ...) }
+		queue = type(self.queued_level_events) == "table" and self.queued_level_events or queue
+		if on.skip_war_briefs and not WAR_END[event] and type(queue) == "table" then
+			local last = queue[#queue]
+			if type(last) == "table" and last.event == event then
+				table.remove(queue)
+				obsidian.log("skip war briefs: ship announcement skipped")
+			end
+		end
+		return unpack(r)
+	end)
+
+	-- Back in an operation whose sector the front has left, the mission screen opens a notice of the
+	-- sector the war has moved on to (region_change). Its only button closes it, so it closes at once.
+	obsidian.hook("MenuScreenCampaignMission", "on_enter", function(original, self, ...)
+		local r = { original(self, ...) }
+		local dialog = self.confirmation_dialog
+		if on.skip_war_briefs and type(dialog) == "table" and dialog.active and dialog.callback_params == "region_change" then
+			dialog:on_exit()
+			obsidian.log("skip war briefs: sector notice skipped")
 		end
 		return unpack(r)
 	end)
