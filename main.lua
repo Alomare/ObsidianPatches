@@ -94,17 +94,35 @@ if on.skip_intro then
 end
 
 -- Two steps, the first visit to the main menu only, so quitting to the main menu works:
--- 1. The login click: the menu's own handle_input gets select from keyboard and mouse every frame
---    until the menu takes the input (showing_menu), so the game's own checks (logo done, fades)
---    still decide when. That also makes keyboard and mouse the main pad, as a click would.
+-- 1. The login press: the device that presses select on the title screen becomes the player 1
+--    controls (set_main_pad_number). With keyboard and mouse the only input, the menu's own
+--    handle_input gets select from them every frame until the menu takes the input (showing_menu),
+--    so the game's own checks (logo done, fades) still decide when. With a gamepad connected, the
+--    press is left to the player, so a gamepad player keeps the gamepad as player 1.
 -- 2. At the login step, the steps the menu takes for a Steam invite: ask for the ship with the
 --    Steam backend. The menu finishes the online setup (backend, campaign) before it leaves.
 -- ARGUMENTS.autohost would skip both but picks the LAN backend, which stays offline.
 if on.skip_login then
 	local clicked, done = false, false
+	-- Whether a gamepad is among the game's active inputs (nil when that can't be read).
+	local function gamepad(kbm)
+		local util = rawget(_G, "InputUtility")
+		if type(util) ~= "table" or type(util.get_active_inputs) ~= "function" then return nil end
+		local ok, inputs = pcall(util.get_active_inputs)
+		if not ok or type(inputs) ~= "table" then return nil end
+		for _, input in ipairs(inputs) do
+			if type(input) == "table" and input.pad_number ~= nil and input.pad_number ~= kbm then return true end
+		end
+		return false
+	end
 	local function click(self)
 		local pad = rawget(_G, "KEYBOARD_MOUSE_PAD_NUMBER")
 		if pad == nil or type(self.handle_input) ~= "function" then return end
+		if gamepad(pad) then
+			clicked = true
+			obsidian.log("skip login: a gamepad is connected, the first press picks the player 1 controls")
+			return
+		end
 		local input = { select = true }
 		local ok, err = pcall(self.handle_input, self, input, { { pad_number = pad, input_data = input } })
 		if not ok then
