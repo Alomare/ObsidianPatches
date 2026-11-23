@@ -2,6 +2,11 @@
 
 New, changed or removed options, one line each, brief and direct. A release's section becomes its release notes.
 
+## 1.13.0
+
+- Changed: **Skip login screen** starts off. With a gamepad connected, the first press on the title screen picks the player 1 controls; with keyboard and mouse alone, the login still needs no press.
+- Changed: **Skip war briefs** also hides the war briefs on the ship: the title of an event that ended (such as ENEMY HOMEWORLD LIBERATED), the ship announcement of each war event, and the notice that the front has left the sector of an operation in progress.
+
 ## 1.12.1
 
 - Changed: Expedite mission end on Instant no longer crashes the game at the end of a mission that completes a planet.
