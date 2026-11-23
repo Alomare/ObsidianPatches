@@ -164,7 +164,7 @@ if on.skip_login then
 	end)
 end
 
--- Every war brief is the galaxy map's recap screen, and the game opens it by itself in three places:
+-- Most war briefs are the galaxy map's recap screen, and the game opens it by itself in three places:
 -- - the ship after login (StateMenu, show_recap): the war since the last brief;
 -- - each opening of the galaxy map (MenuScreenCampaign.on_enter): what changed since the last brief;
 -- - an open galaxy map whenever the war moves: a sector or planet changing hands, a defend or attack
@@ -224,6 +224,46 @@ do
 				self.wants_exit = true
 				obsidian.log("skip war briefs: brief skipped after the snapshots")
 			end
+		end
+		return unpack(r)
+	end)
+
+	-- The ship has briefs of its own, outside the galaxy map:
+	-- - the title of an event that ended, over the ship (GalacticEventManager.add_ended_event), such as
+	--   ENEMY HOMEWORLD LIBERATED after an attack event: it is never added;
+	-- - the ship's announcement of each war event (StateMenu.on_campaign_event queues a level flow): a
+	--   sector won or lost, a defend or attack event starting or ending, an enemy beaten. The line on
+	--   the news ticker stays, and so does the war's end (on_campaign_won, on_campaign_lost).
+	obsidian.hook("GalacticEventManager", "add_ended_event", function(original, self, event, ...)
+		if on.skip_war_briefs then
+			obsidian.log("skip war briefs: event title skipped")
+			return
+		end
+		return original(self, event, ...)
+	end)
+	local WAR_END = { on_campaign_won = true, on_campaign_lost = true }
+	obsidian.hook("StateMenu", "on_campaign_event", function(original, self, event, ...)
+		local queue = self.queued_level_events
+		local r = { original(self, event, ...) }
+		queue = type(self.queued_level_events) == "table" and self.queued_level_events or queue
+		if on.skip_war_briefs and not WAR_END[event] and type(queue) == "table" then
+			local last = queue[#queue]
+			if type(last) == "table" and last.event == event then
+				table.remove(queue)
+				obsidian.log("skip war briefs: ship announcement skipped")
+			end
+		end
+		return unpack(r)
+	end)
+
+	-- Back in an operation whose sector the front has left, the mission screen opens a notice of the
+	-- sector the war has moved on to (region_change). Its only button closes it, so it closes at once.
+	obsidian.hook("MenuScreenCampaignMission", "on_enter", function(original, self, ...)
+		local r = { original(self, ...) }
+		local dialog = self.confirmation_dialog
+		if on.skip_war_briefs and type(dialog) == "table" and dialog.active and dialog.callback_params == "region_change" then
+			dialog:on_exit()
+			obsidian.log("skip war briefs: sector notice skipped")
 		end
 		return unpack(r)
 	end)
